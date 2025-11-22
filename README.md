@@ -7,6 +7,7 @@
 - **Org-first workflow** – Creates (or observes) the Organizations root once, then ensures caller-requested OU paths exist before any member accounts render unless you pass a `parentId` override.
 - **Managed/self modes** – `spec.managementMode` toggles whether we expect Hops to operate the account (`managed`) or hand it over after provisioning (`self`).
 - **Automatic ProviderConfigs** – Every account emits an `aws.m.upbound.io/v1beta1, Kind=ProviderConfig` that points at the new account and assumes the standard `OrganizationAccountAccessRole`.
+- **Account baseline handoff** – As soon as the member account is ready we emit the private `AccountBaseline` composite so GuardDuty, Security Hub, Config, and other controls flip on (or stay off for sandbox environments).
 - **Status projection** – Surfaces the provisioned `accountId`, `orgId`, `adminRoleArn`, and ProviderConfig name directly on the composite.
 
 ## Spec
@@ -35,6 +36,7 @@ spec:
 ```
 
 When `emailDomain` is omitted we append the prefix to `example.com`. You can also pass `parameters.email` to override the full address if needed.
+The `environment` flag only drives the baseline feature toggles (GuardDuty, Security Hub, Config) so you can keep sandboxes lightweight without impacting production accounts.
 
 ## Status
 

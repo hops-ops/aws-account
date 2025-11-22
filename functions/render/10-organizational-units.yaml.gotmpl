@@ -25,7 +25,6 @@ apiVersion: organizations.aws.m.upbound.io/v1beta1
 kind: OrganizationalUnit
 metadata:
   name: {{ $resourceName }}
-  namespace: {{ $namespace }}
   annotations:
     gotemplating.fn.crossplane.io/composition-resource-name: {{ $resourceKey | quote }}
 spec:

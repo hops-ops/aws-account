@@ -6,13 +6,15 @@
   {{ $organizationManagementPolicies = list "Observe" "LateInitialize" }}
 {{ end }}
 
+# Always render the Organization resource so every composite can read the root ID,
+# but only the bootstrap Account (ouPath == "root") is allowed to mutate it.
+
 ---
 
 apiVersion: organizations.aws.m.upbound.io/v1beta1
 kind: Organization
 metadata:
   name: {{ $organizationResourceName }}
-  namespace: {{ $namespace }}
   annotations:
     gotemplating.fn.crossplane.io/composition-resource-name: "organization"
 spec:

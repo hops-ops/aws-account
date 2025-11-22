@@ -19,8 +19,7 @@ _items = [
         metadata.name: ""
         spec= {
             crossplane.autoUpgrade.channel: "Rapid"
-            # AccountBaseline is not wired up yet, so only require Synced until it ships.
-            defaultConditions: ["Synced"]
+            defaultConditions: ["Ready"]
             manifests: [
                 awsv1alpha1.Account{
                     metadata: {

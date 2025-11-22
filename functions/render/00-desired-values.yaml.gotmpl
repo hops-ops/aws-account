@@ -14,6 +14,8 @@
 {{ $providerConfigName := $spec.providerConfigName | default "default" }}
 
 {{ $environment := $parameters.environment | default "dev" }}
+{{ $environmentLower := lower $environment }}
+{{ $isSandboxEnvironment := eq $environmentLower "sandbox" }}
 {{ $accountDisplayName := $parameters.name | default $name }}
 {{ $emailPrefix := $parameters.emailPrefix | default $name }}
 {{ $emailDomain := $parameters.emailDomain | default "example.com" }}
@@ -66,6 +68,11 @@
 {{ $organizationResourceName := printf "%s-organization" $name }}
 {{ $accountResourceName := printf "%s-account" $name }}
 {{ $accountProviderConfigName := printf "%s-provider" $name }}
+{{ $accountBaselineName := printf "%s-baseline" $name }}
 
 {{ $policyAttachments := $parameters.policyAttachments | default (list) }}
 {{ $accountAdminRoleName := "OrganizationAccountAccessRole" }}
+
+{{ $baselineGuardDutyEnabled := not $isSandboxEnvironment }}
+{{ $baselineSecurityHubEnabled := not $isSandboxEnvironment }}
+{{ $baselineConfigRecorderEnabled := not $isSandboxEnvironment }}

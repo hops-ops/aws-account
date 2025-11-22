@@ -9,7 +9,6 @@ apiVersion: aws.m.upbound.io/v1beta1
 kind: ProviderConfig
 metadata:
   name: {{ $accountProviderConfigName }}
-  namespace: {{ $namespace }}
   annotations:
     gotemplating.fn.crossplane.io/composition-resource-name: "account-providerconfig"
 spec:

@@ -9,7 +9,6 @@ apiVersion: organizations.aws.m.upbound.io/v1beta1
 kind: Account
 metadata:
   name: {{ $accountResourceName }}
-  namespace: {{ $namespace }}
   annotations:
     gotemplating.fn.crossplane.io/composition-resource-name: "member-account"
 spec:

@@ -10,7 +10,6 @@ apiVersion: organizations.aws.m.upbound.io/v1beta1
 kind: PolicyAttachment
 metadata:
   name: {{ printf "%s-scp-%d" $name $index }}
-  namespace: {{ $namespace }}
   annotations:
     gotemplating.fn.crossplane.io/composition-resource-name: {{ printf "policy-attachment-%d" $index | quote }}
 spec:
