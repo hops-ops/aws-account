@@ -4,136 +4,11 @@ import models.io.upbound.dev.meta.v1alpha1 as metav1alpha1
 _composition = "apis/accounts/composition.yaml"
 _xrd = "apis/accounts/definition.yaml"
 
-_root_org_observation = {
-    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-    kind: "Organization"
-    metadata: {
-        name: "example-root-organization"
-        annotations: {
-            "gotemplating.fn.crossplane.io/composition-resource-name": "organization"
-            "crossplane.io/composition-resource-name": "organization"
-        }
-    }
-    status: {
-        conditions: [
-            {
-                type: "Ready"
-                status: "True"
-            }
-        ]
-        atProvider: {
-            id: "o-example-root"
-            roots: [
-                {
-                    id: "r-example-root"
-                }
-            ]
-        }
-    }
-}
-
-_nested_org_observation = {
-    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-    kind: "Organization"
-    metadata: {
-        name: "example-nested-organization"
-        annotations: {
-            "gotemplating.fn.crossplane.io/composition-resource-name": "organization"
-            "crossplane.io/composition-resource-name": "organization"
-        }
-    }
-    status: {
-        conditions: [
-            {
-                type: "Ready"
-                status: "True"
-            }
-        ]
-        atProvider: {
-            id: "o-example-nested"
-            roots: [
-                {
-                    id: "r-example-nested"
-                }
-            ]
-        }
-    }
-}
-
-_nested_ou0_observation = {
-    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-    kind: "OrganizationalUnit"
-    metadata: {
-        name: "example-nested-ou-platform-team-0"
-        annotations: {
-            "gotemplating.fn.crossplane.io/composition-resource-name": "organizational-unit-0"
-            "crossplane.io/composition-resource-name": "organizational-unit-0"
-        }
-    }
-    status: {
-        conditions: [
-            {
-                type: "Ready"
-                status: "True"
-            }
-        ]
-        atProvider: {
-            id: "ou-platform-team"
-        }
-    }
-}
-
-_nested_ou1_observation = {
-    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-    kind: "OrganizationalUnit"
-    metadata: {
-        name: "example-nested-ou-prod-1"
-        annotations: {
-            "gotemplating.fn.crossplane.io/composition-resource-name": "organizational-unit-1"
-            "crossplane.io/composition-resource-name": "organizational-unit-1"
-        }
-    }
-    status: {
-        conditions: [
-            {
-                type: "Ready"
-                status: "True"
-            }
-        ]
-        atProvider: {
-            id: "ou-prod"
-        }
-    }
-}
-
-_nested_ou2_observation = {
-    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-    kind: "OrganizationalUnit"
-    metadata: {
-        name: "example-nested-ou-saas-2"
-        annotations: {
-            "gotemplating.fn.crossplane.io/composition-resource-name": "organizational-unit-2"
-            "crossplane.io/composition-resource-name": "organizational-unit-2"
-        }
-    }
-    status: {
-        conditions: [
-            {
-                type: "Ready"
-                status: "True"
-            }
-        ]
-        atProvider: {
-            id: "ou-saas"
-        }
-    }
-}
-
-_nested_account_observation = {
+_account_observation = {
     apiVersion: "organizations.aws.m.upbound.io/v1beta1"
     kind: "Account"
     metadata: {
-        name: "example-nested-account"
+        name: "team-platform-dev"
         annotations: {
             "gotemplating.fn.crossplane.io/composition-resource-name": "member-account"
             "crossplane.io/composition-resource-name": "member-account"
@@ -148,45 +23,27 @@ _nested_account_observation = {
         ]
         atProvider: {
             id: "123456789012"
-            email: "nested-owner@example.com"
+            email: "platform-dev@mycompany.com"
         }
     }
 }
 
 _items = [
     metav1alpha1.CompositionTest{
-        metadata.name: "test-account-root-organization-and-member"
+        metadata.name: "test-basic-account-rendering"
         spec = {
             compositionPath: _composition
-            xrPath: "examples/accounts/example-root.yaml"
+            xrPath: "examples/accounts/example.yaml"
             xrdPath: _xrd
             timeoutSeconds: 180
             validate: True
-            observedResources: [
-                _root_org_observation
-            ]
+            observedResources: []
             assertResources: [
-                {
-                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-                    kind: "Organization"
-                    metadata: {
-                        name: "example-root-organization"
-                    }
-                    spec: {
-                        managementPolicies: ["*"]
-                        providerConfigRef: {
-                            name: "management-aws"
-                        }
-                        forProvider: {
-                            featureSet: "ALL"
-                        }
-                    }
-                },
                 {
                     apiVersion: "organizations.aws.m.upbound.io/v1beta1"
                     kind: "Account"
                     metadata: {
-                        name: "example-root-account"
+                        name: "team-platform-dev"
                     }
                     spec: {
                         managementPolicies: ["*"]
@@ -194,12 +51,13 @@ _items = [
                             name: "management-aws"
                         }
                         forProvider: {
-                            name: "Example Root"
-                            email: "example-root@accounts.example.com"
-                            parentId: "r-example-root"
+                            name: "team-platform-dev"
+                            email: "platform-dev@mycompany.com"
+                            parentId: "r-1234"
                             tags: {
                                 hops: "true"
-                                workspace: "example"
+                                team: "platform"
+                                environment: "dev"
                             }
                         }
                     }
@@ -208,59 +66,22 @@ _items = [
         }
     },
     metav1alpha1.CompositionTest{
-        metadata.name: "test-account-ou-chain-and-scp-attachments"
+        metadata.name: "test-account-with-observed-resources"
         spec = {
             compositionPath: _composition
-            xrPath: "examples/accounts/example-nested.yaml"
+            xrPath: "examples/accounts/example.yaml"
             xrdPath: _xrd
             timeoutSeconds: 180
             validate: True
             observedResources: [
-                _nested_org_observation,
-                _nested_ou0_observation,
-                _nested_ou1_observation,
-                _nested_ou2_observation,
-                _nested_account_observation
+                _account_observation
             ]
             assertResources: [
                 {
                     apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-                    kind: "Organization"
-                    metadata: {
-                        name: "example-nested-organization"
-                    }
-                    spec: {
-                        managementPolicies: ["Observe", "LateInitialize"]
-                        providerConfigRef: {
-                            name: "management-aws"
-                        }
-                        forProvider: {
-                            featureSet: "ALL"
-                        }
-                    }
-                },
-                {
-                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-                    kind: "OrganizationalUnit"
-                    metadata: {
-                        name: "example-nested-ou-prod-1"
-                    }
-                    spec: {
-                        managementPolicies: ["*"]
-                        providerConfigRef: {
-                            name: "management-aws"
-                        }
-                        forProvider: {
-                            name: "Prod"
-                            parentId: "ou-platform-team"
-                        }
-                    }
-                },
-                {
-                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
                     kind: "Account"
                     metadata: {
-                        name: "example-nested-account"
+                        name: "team-platform-dev"
                     }
                     spec: {
                         managementPolicies: ["*"]
@@ -268,22 +89,22 @@ _items = [
                             name: "management-aws"
                         }
                         forProvider: {
-                            name: "Example Nested"
-                            email: "nested-owner@example.com"
-                            parentId: "ou-saas"
+                            name: "team-platform-dev"
+                            email: "platform-dev@mycompany.com"
+                            parentId: "r-1234"
                             tags: {
                                 hops: "true"
                                 team: "platform"
-                                tier: "shared"
+                                environment: "dev"
                             }
                         }
                     }
                 },
                 {
-                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-                    kind: "PolicyAttachment"
+                    apiVersion: "iam.aws.m.upbound.io/v1beta1"
+                    kind: "User"
                     metadata: {
-                        name: "example-nested-scp-0"
+                        name: "team-platform-dev"
                     }
                     spec: {
                         managementPolicies: ["*"]
@@ -291,15 +112,19 @@ _items = [
                             name: "management-aws"
                         }
                         forProvider: {
-                            policyArn: "arn:aws:organizations::111111111111:policy/o-example/p-require-tags"
+                            tags: {
+                                hops: "true"
+                                team: "platform"
+                                environment: "dev"
+                            }
                         }
                     }
                 },
                 {
-                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
-                    kind: "PolicyAttachment"
+                    apiVersion: "iam.aws.m.upbound.io/v1beta1"
+                    kind: "Policy"
                     metadata: {
-                        name: "example-nested-scp-1"
+                        name: "team-platform-dev"
                     }
                     spec: {
                         managementPolicies: ["*"]
@@ -307,25 +132,58 @@ _items = [
                             name: "management-aws"
                         }
                         forProvider: {
-                            policyArn: "arn:aws:organizations::111111111111:policy/o-example/p-block-public-s3"
+                            tags: {
+                                hops: "true"
+                                team: "platform"
+                                environment: "dev"
+                            }
                         }
                     }
                 },
                 {
-                    apiVersion: "aws.m.upbound.io/v1beta1"
-                    kind: "ProviderConfig"
+                    apiVersion: "iam.aws.m.upbound.io/v1beta1"
+                    kind: "UserPolicyAttachment"
                     metadata: {
-                        name: "example-nested-provider"
+                        name: "team-platform-dev"
                     }
                     spec: {
-                        credentials: {
-                            source: "IRSA"
+                        managementPolicies: ["*"]
+                        providerConfigRef: {
+                            name: "management-aws"
                         }
-                        assumeRoleChain: [
-                            {
-                                roleARN: "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
-                            }
-                        ]
+                    }
+                },
+                {
+                    apiVersion: "iam.aws.m.upbound.io/v1beta1"
+                    kind: "AccessKey"
+                    metadata: {
+                        name: "team-platform-dev"
+                    }
+                    spec: {
+                        managementPolicies: ["*"]
+                        providerConfigRef: {
+                            name: "management-aws"
+                        }
+                        writeConnectionSecretToRef: {
+                            name: "team-platform-dev-aws-credentials"
+                        }
+                    }
+                },
+                {
+                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
+                    kind: "PolicyAttachment"
+                    metadata: {
+                        name: "team-platform-dev-scp-0"
+                    }
+                    spec: {
+                        managementPolicies: ["*"]
+                        providerConfigRef: {
+                            name: "management-aws"
+                        }
+                        forProvider: {
+                            policyId: "arn:aws:organizations::111111111111:policy/o-example/p-deny-root"
+                            targetId: "123456789012"
+                        }
                     }
                 }
             ]

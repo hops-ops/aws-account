@@ -1,29 +1,26 @@
 # code: language=yaml
 # yaml-language-server: $schema=../../.up/json/models/index.schema.json
 
-{{ if $parentId }}
+{{ if $accountReady }}
 
 ---
 
-apiVersion: organizations.aws.m.upbound.io/v1beta1
-kind: Account
+apiVersion: iam.aws.m.upbound.io/v1beta1
+kind: User
 metadata:
-  name: {{ $accountResourceName }}
+  name: {{ $name }}
   namespace: {{ $namespace }}
   labels:
     hops.ops.com.ai/managed: "true"
     hops.ops.com.ai/account: {{ $name }}
   annotations:
-    gotemplating.fn.crossplane.io/composition-resource-name: "member-account"
+    gotemplating.fn.crossplane.io/composition-resource-name: "iam-user"
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
     kind: ProviderConfig
     name: {{ $providerConfigName }}
   forProvider:
-    name: {{ $name }}
-    email: {{ $email }}
-    parentId: {{ $parentId }}
     {{- if $tags }}
     tags:
       {{- range $k, $v := $tags }}

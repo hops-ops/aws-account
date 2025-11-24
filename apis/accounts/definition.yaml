@@ -21,15 +21,19 @@ spec:
           spec:
             type: object
             required:
-            - parameters
+            - email
+            - parentId
             properties:
-              managementMode:
+              email:
                 type: string
-                description: Controls whether Hops operates the account (managed) or hands it over (self).
-                enum:
-                - self
-                - managed
-                default: self
+                description: AWS account email address. Must be unique across all AWS accounts.
+              parentId:
+                type: string
+                description: AWS Organizations parent ID (root or organizational unit) where the account will be created.
+              providerConfigName:
+                type: string
+                description: Management account ProviderConfig used for Organizations operations. Defaults to "default".
+                default: default
               managementPolicies:
                 type: array
                 description: Crossplane management policies propagated to managed resources. Defaults to ["*"].
@@ -44,65 +48,37 @@ spec:
                   - LateInitialize
                 default:
                 - "*"
-              providerConfigName:
-                type: string
-                description: Root AWS ProviderConfig used for Organizations operations. Defaults to default.
-                default: default
-              parameters:
+              policyAttachments:
+                type: array
+                description: Optional list of Service Control Policy ARNs to attach to the account.
+                items:
+                  type: string
+              tags:
                 type: object
-                required:
-                - name
-                - emailPrefix
-                - ouPath
+                description: "AWS resource tags. Automatically includes {\"hops\": \"true\"}."
+                x-kubernetes-preserve-unknown-fields: true
+              providerConfig:
+                type: object
+                description: Configuration for automated ProviderConfig creation. Creates IAM user, access key, and ProviderConfig with assumeRoleChain.
                 properties:
                   name:
                     type: string
-                    description: Friendly AWS account display name.
-                  emailPrefix:
+                    description: Override ProviderConfig name. Defaults to the account name.
+                  secretNamespace:
                     type: string
-                    description: Prefix used to build the AWS account email address.
-                  emailDomain:
-                    type: string
-                    description: Domain appended to emailPrefix. Defaults to example.com.
-                  email:
-                    type: string
-                    description: Optional full email override. Bypasses prefix + domain logic when set.
-                  ouPath:
-                    type: string
-                    description: Desired Organizational Unit path (e.g., root/workloads/prod/account).
-                  parentId:
-                    type: string
-                    description: Optional OU ID override. When set, the composition skips OU creation and places the account directly into this parent.
-                  environment:
-                    type: string
-                    description: Environment label used for feature toggles.
-                    enum:
-                    - root
-                    - sandbox
-                    - dev
-                    - prod
-                    - tenant
-                    - testing
-                    default: dev
-                  tags:
-                    type: object
-                    description: "Additional AWS tags merged with the default {\"hops\": \"true\"} set."
-                    x-kubernetes-preserve-unknown-fields: true
-                  policyAttachments:
-                    type: array
-                    description: Optional list of Service Control Policy ARNs to attach once the account is created.
-                    items:
-                      type: string
+                    description: Namespace for the credentials Secret. Defaults to the Account's namespace.
           status:
             type: object
             properties:
               accountId:
                 type: string
-              orgId:
-                type: string
               adminRoleArn:
                 type: string
               providerConfigName:
+                type: string
+              iamUserName:
+                type: string
+              credentialsSecretName:
                 type: string
               ready:
                 type: boolean

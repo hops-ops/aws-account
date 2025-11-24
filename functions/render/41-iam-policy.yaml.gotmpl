@@ -1,29 +1,37 @@
 # code: language=yaml
 # yaml-language-server: $schema=../../.up/json/models/index.schema.json
 
-{{ if $parentId }}
+{{ if and $accountReady $accountId }}
 
 ---
 
-apiVersion: organizations.aws.m.upbound.io/v1beta1
-kind: Account
+apiVersion: iam.aws.m.upbound.io/v1beta1
+kind: Policy
 metadata:
-  name: {{ $accountResourceName }}
+  name: {{ $name }}
   namespace: {{ $namespace }}
   labels:
     hops.ops.com.ai/managed: "true"
     hops.ops.com.ai/account: {{ $name }}
   annotations:
-    gotemplating.fn.crossplane.io/composition-resource-name: "member-account"
+    gotemplating.fn.crossplane.io/composition-resource-name: "iam-policy"
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
     kind: ProviderConfig
     name: {{ $providerConfigName }}
   forProvider:
-    name: {{ $name }}
-    email: {{ $email }}
-    parentId: {{ $parentId }}
+    policy: |
+      {
+        "Version": "2012-10-17",
+        "Statement": [
+          {
+            "Effect": "Allow",
+            "Action": "sts:AssumeRole",
+            "Resource": "arn:aws:iam::{{ $accountId }}:role/{{ $accountAdminRoleName }}"
+          }
+        ]
+      }
     {{- if $tags }}
     tags:
       {{- range $k, $v := $tags }}

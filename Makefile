@@ -6,12 +6,13 @@ clean:
 build:
 	up project build
 
-render: render-example
+render: render-example-step-1 render-example-step-2
 
-render-all: render-example
+render-example-step-1:
+	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml
 
-render-example:
-	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example-member.yaml
+render-example-step-2:
+	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml --observed-resources=examples/observed-resources/step-1/
 
 test:
 	up test run tests/test*
@@ -19,7 +20,7 @@ test:
 validate: validate-composition validate-example
 
 validate-composition:
-	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example-member.yaml --include-full-xr --quiet | crossplane beta validate apis/accounts --error-on-missing-schemas -
+	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml --observed-resources=examples/observed-resources/step-1/ --include-full-xr --quiet | crossplane beta validate apis/accounts --error-on-missing-schemas -
 
 validate-example:
 	crossplane beta validate apis/accounts examples/accounts
@@ -29,7 +30,7 @@ publish:
 	up project build --push --tag $(tag)
 
 generate-definitions:
-	up xrd generate examples/accounts/example-member.yaml
+	up xrd generate examples/accounts/example.yaml
 
 generate-function:
 	up function generate --language=go-templating render apis/accounts/composition.yaml

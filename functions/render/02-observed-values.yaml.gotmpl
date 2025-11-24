@@ -3,66 +3,9 @@
 
 {{ $observedResources := $.observed.resources | default (dict) }}
 
-{{ $organizationObservation := get $observedResources "organization" }}
-{{ $organizationReady := false }}
-{{ $organizationId := "" }}
-{{ $organizationRootId := "" }}
-
-{{ with $organizationObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ $conditionType := get . "type" | default "" }}
-    {{ $conditionStatus := get . "status" | default "" }}
-    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-      {{ $organizationReady = true }}
-    {{ end }}
-  {{ end }}
-  {{ $atProvider := $status.atProvider | default (dict) }}
-  {{ $orgIdCandidate := $atProvider.id | default "" }}
-  {{ if $orgIdCandidate }}
-    {{ $organizationId = $orgIdCandidate }}
-  {{ end }}
-  {{ $roots := $atProvider.roots | default (list) }}
-  {{ range $roots }}
-    {{ $rootIdCandidate := get . "id" | default "" }}
-    {{ if and $rootIdCandidate (not $organizationRootId) }}
-      {{ $organizationRootId = $rootIdCandidate }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-{{ $observedOUs := dict }}
-{{ range $ouDescriptors }}
-  {{ $resourceKey := .resourceKey }}
-  {{ $ouObservation := get $observedResources $resourceKey }}
-  {{ $ready := false }}
-  {{ $ouId := "" }}
-  {{ with $ouObservation }}
-    {{ $resource := .resource | default (dict) }}
-    {{ $status := $resource.status | default (dict) }}
-    {{ $conditions := $status.conditions | default (list) }}
-    {{ range $conditions }}
-      {{ $conditionType := get . "type" | default "" }}
-      {{ $conditionStatus := get . "status" | default "" }}
-      {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-        {{ $ready = true }}
-      {{ end }}
-    {{ end }}
-    {{ $atProvider := $status.atProvider | default (dict) }}
-    {{ $ouIdCandidate := $atProvider.id | default "" }}
-    {{ if $ouIdCandidate }}
-      {{ $ouId = $ouIdCandidate }}
-    {{ end }}
-  {{ end }}
-  {{ $_ := set $observedOUs $resourceKey (dict "ready" $ready "id" $ouId) }}
-{{ end }}
-
 {{ $accountObservation := get $observedResources "member-account" }}
 {{ $accountReady := false }}
 {{ $accountId := "" }}
-{{ $accountEmailObserved := "" }}
 
 {{ with $accountObservation }}
   {{ $resource := .resource | default (dict) }}
@@ -80,32 +23,79 @@
   {{ if $accountIdCandidate }}
     {{ $accountId = $accountIdCandidate }}
   {{ end }}
-  {{ $accountEmailCandidate := $atProvider.email | default "" }}
-  {{ if $accountEmailCandidate }}
-    {{ $accountEmailObserved = $accountEmailCandidate }}
-  {{ end }}
-{{ end }}
-
-{{ $accountParentReady := false }}
-{{ $accountParentId := "" }}
-
-{{ if $parentIdOverride }}
-  {{ $accountParentReady = true }}
-  {{ $accountParentId = $parentIdOverride }}
-{{ else if gt (len $ouDescriptors) 0 }}
-  {{ $lastIndex := sub (len $ouDescriptors) 1 }}
-  {{ $lastKey := printf "organizational-unit-%d" $lastIndex }}
-  {{ $lastEntry := get $observedOUs $lastKey | default (dict) }}
-  {{ $accountParentReady = get $lastEntry "ready" | default false }}
-  {{ $accountParentId = get $lastEntry "id" | default "" }}
-{{ else }}
-  {{ $accountParentReady = $organizationReady }}
-  {{ $accountParentId = $organizationRootId }}
 {{ end }}
 
 {{ $adminRoleArn := "" }}
 {{ if $accountId }}
   {{ $adminRoleArn = printf "arn:aws:iam::%s:role/%s" $accountId $accountAdminRoleName }}
+{{ end }}
+
+# IAM User observation (for ProviderConfig automation)
+{{ $iamUserObservation := get $observedResources "iam-user" }}
+{{ $iamUserReady := false }}
+
+{{ with $iamUserObservation }}
+  {{ $resource := .resource | default (dict) }}
+  {{ $status := $resource.status | default (dict) }}
+  {{ $conditions := $status.conditions | default (list) }}
+  {{ range $conditions }}
+    {{ $conditionType := get . "type" | default "" }}
+    {{ $conditionStatus := get . "status" | default "" }}
+    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
+      {{ $iamUserReady = true }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+# IAM Policy observation
+{{ $iamPolicyObservation := get $observedResources "iam-policy" }}
+{{ $iamPolicyReady := false }}
+
+{{ with $iamPolicyObservation }}
+  {{ $resource := .resource | default (dict) }}
+  {{ $status := $resource.status | default (dict) }}
+  {{ $conditions := $status.conditions | default (list) }}
+  {{ range $conditions }}
+    {{ $conditionType := get . "type" | default "" }}
+    {{ $conditionStatus := get . "status" | default "" }}
+    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
+      {{ $iamPolicyReady = true }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+# IAM UserPolicyAttachment observation
+{{ $iamPolicyAttachmentObservation := get $observedResources "iam-user-policy-attachment" }}
+{{ $iamPolicyAttachmentReady := false }}
+
+{{ with $iamPolicyAttachmentObservation }}
+  {{ $resource := .resource | default (dict) }}
+  {{ $status := $resource.status | default (dict) }}
+  {{ $conditions := $status.conditions | default (list) }}
+  {{ range $conditions }}
+    {{ $conditionType := get . "type" | default "" }}
+    {{ $conditionStatus := get . "status" | default "" }}
+    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
+      {{ $iamPolicyAttachmentReady = true }}
+    {{ end }}
+  {{ end }}
+{{ end }}
+
+# IAM AccessKey observation
+{{ $accessKeyObservation := get $observedResources "iam-access-key" }}
+{{ $accessKeyReady := false }}
+
+{{ with $accessKeyObservation }}
+  {{ $resource := .resource | default (dict) }}
+  {{ $status := $resource.status | default (dict) }}
+  {{ $conditions := $status.conditions | default (list) }}
+  {{ range $conditions }}
+    {{ $conditionType := get . "type" | default "" }}
+    {{ $conditionStatus := get . "status" | default "" }}
+    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
+      {{ $accessKeyReady = true }}
+    {{ end }}
+  {{ end }}
 {{ end }}
 
 {{ $providerConfigReady := $accountReady }}

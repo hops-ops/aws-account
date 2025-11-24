@@ -1,0 +1,47 @@
+# Simulated observed resources for step 1: Account is ready
+# This allows the IAM resources to render
+
+---
+apiVersion: organizations.aws.m.upbound.io/v1beta1
+kind: Account
+metadata:
+  name: team-platform-dev
+  namespace: hops
+  labels:
+    crossplane.io/composite: team-platform-dev
+    hops.ops.com.ai/account: team-platform-dev
+    hops.ops.com.ai/managed: "true"
+  annotations:
+    gotemplating.fn.crossplane.io/composition-resource-name: "member-account"
+    crossplane.io/composition-resource-name: "member-account"
+  ownerReferences:
+  - apiVersion: aws.hops.ops.com.ai/v1alpha1
+    blockOwnerDeletion: true
+    controller: true
+    kind: Account
+    name: team-platform-dev
+    uid: ""
+spec:
+  managementPolicies:
+  - '*'
+  providerConfigRef:
+    kind: ProviderConfig
+    name: management-aws
+  forProvider:
+    name: team-platform-dev
+    email: platform-dev@mycompany.com
+    parentId: r-1234
+    tags:
+      environment: dev
+      hops: "true"
+      team: platform
+status:
+  conditions:
+    - type: Ready
+      status: "True"
+      reason: Available
+      lastTransitionTime: "2024-01-01T00:00:00Z"
+  atProvider:
+    id: "123456789012"
+    email: "platform-dev@mycompany.com"
+    arn: "arn:aws:organizations::111111111111:account/o-example/123456789012"

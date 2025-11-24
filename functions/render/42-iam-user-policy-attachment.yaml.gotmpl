@@ -2,28 +2,32 @@
 # yaml-language-server: $schema=../../.up/json/models/index.schema.json
 
 {{ if and $accountReady $accountId }}
-  {{- range $index, $policyArn := $policyAttachments }}
 
 ---
 
-apiVersion: organizations.aws.m.upbound.io/v1beta1
-kind: PolicyAttachment
+apiVersion: iam.aws.m.upbound.io/v1beta1
+kind: UserPolicyAttachment
 metadata:
-  name: {{ printf "%s-scp-%d" $name $index }}
+  name: {{ $name }}
   namespace: {{ $namespace }}
   labels:
     hops.ops.com.ai/managed: "true"
     hops.ops.com.ai/account: {{ $name }}
   annotations:
-    gotemplating.fn.crossplane.io/composition-resource-name: {{ printf "policy-attachment-%d" $index | quote }}
+    gotemplating.fn.crossplane.io/composition-resource-name: "iam-user-policy-attachment"
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
     kind: ProviderConfig
     name: {{ $providerConfigName }}
   forProvider:
-    policyId: {{ $policyArn }}
-    targetId: {{ quote $accountId }}
+    policyArnSelector:
+      matchControllerRef: true
+      matchLabels:
+        hops.ops.com.ai/account: {{ $name }}
+    userSelector:
+      matchControllerRef: true
+      matchLabels:
+        hops.ops.com.ai/account: {{ $name }}
 
-  {{- end }}
 {{ end }}

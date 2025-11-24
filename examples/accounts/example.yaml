@@ -1,0 +1,15 @@
+# code: language=yaml
+apiVersion: aws.hops.ops.com.ai/v1alpha1
+kind: Account
+metadata:
+  name: team-platform-dev
+  namespace: hops
+spec:
+  email: platform-dev@mycompany.com
+  parentId: r-1234
+  providerConfigName: management-aws
+  policyAttachments:
+    - arn:aws:organizations::111111111111:policy/o-example/p-deny-root
+  tags:
+    team: platform
+    environment: dev

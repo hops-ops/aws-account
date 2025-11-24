@@ -4,75 +4,35 @@
 {{ $xr := getCompositeResource . }}
 {{ $metadata := $xr.metadata | default (dict) }}
 {{ $spec := $xr.spec | default (dict) }}
-{{ $parameters := $spec.parameters | default (dict) }}
 
 {{ $name := $metadata.name | default "" }}
 {{ $namespace := $metadata.namespace | default "" }}
 
-{{ $managementMode := $spec.managementMode | default "self" }}
-{{ $managementPolicies := $spec.managementPolicies | default (list "*") }}
+{{ $email := $spec.email | default "" }}
+{{ $parentId := $spec.parentId | default "" }}
 {{ $providerConfigName := $spec.providerConfigName | default "default" }}
-
-{{ $environment := $parameters.environment | default "dev" }}
-{{ $environmentLower := lower $environment }}
-{{ $isSandboxEnvironment := eq $environmentLower "sandbox" }}
-{{ $accountDisplayName := $parameters.name | default $name }}
-{{ $emailPrefix := $parameters.emailPrefix | default $name }}
-{{ $emailDomain := $parameters.emailDomain | default "example.com" }}
-{{ $emailOverride := $parameters.email | default "" }}
-{{ $accountEmail := $emailOverride | default (printf "%s@%s" $emailPrefix $emailDomain) }}
+{{ $managementPolicies := $spec.managementPolicies | default (list "*") }}
+{{ $policyAttachments := $spec.policyAttachments | default (list) }}
 
 {{ $defaultTags := dict "hops" "true" }}
-{{ $accountTags := merge $defaultTags ($parameters.tags | default (dict)) }}
+{{ $tags := merge $defaultTags ($spec.tags | default (dict)) }}
 
-{{ $requestedOuPath := $parameters.ouPath | default "root" }}
-{{ $parentIdOverride := $parameters.parentId | default "" }}
-{{ $isRootPath := eq (lower $requestedOuPath) "root" }}
+{{ $defaultLabels := dict "hops.ops.com.ai/managed" "true" }}
 
-{{ $rawOuSegments := splitList "/" $requestedOuPath }}
-{{ $normalizedOuSegments := list }}
-{{ range $rawOuSegments }}
-  {{- $segment := trim . }}
-  {{- if $segment }}
-    {{- $normalizedOuSegments = append $normalizedOuSegments $segment }}
-  {{- end }}
+{{ $accountResourceName := $name }}
+
+{{ $accountAdminRoleName := "hops" }}
+
+# ProviderConfig settings
+{{ $providerConfigSpec := $spec.providerConfig | default (dict) }}
+{{ $providerConfigCustomName := $providerConfigSpec.name | default "" }}
+{{ $providerConfigSecretNamespace := $providerConfigSpec.secretNamespace | default $namespace }}
+
+# Computed resource names
+{{ $accountProviderConfigName := $providerConfigCustomName }}
+{{ if not $accountProviderConfigName }}
+  {{ $accountProviderConfigName = $name }}
 {{ end }}
-
-{{ $ouSegments := list }}
-{{ range $index, $segment := $normalizedOuSegments }}
-  {{- if and (eq $index 0) (eq (lower $segment) "root") }}
-  {{- else }}
-    {{- $ouSegments = append $ouSegments $segment }}
-  {{- end }}
-{{ end }}
-
-{{ if $parentIdOverride }}
-  {{ $ouSegments = list }}
-{{ end }}
-
-{{ $ouDescriptors := list }}
-{{ range $index, $segment := $ouSegments }}
-  {{- $segmentSlug := regexReplaceAll "[^a-z0-9-]" (lower $segment) "-" }}
-  {{- $resourceKey := printf "organizational-unit-%d" $index }}
-  {{- $resourceName := printf "%s-ou-%s-%d" $name $segmentSlug $index }}
-  {{- $descriptor := dict
-      "index" $index
-      "segment" $segment
-      "slug" $segmentSlug
-      "resourceKey" $resourceKey
-      "resourceName" $resourceName
-    }}
-  {{- $ouDescriptors = append $ouDescriptors $descriptor }}
-{{ end }}
-
-{{ $organizationResourceName := printf "%s-organization" $name }}
-{{ $accountResourceName := printf "%s-account" $name }}
-{{ $accountProviderConfigName := printf "%s-provider" $name }}
-{{ $accountBaselineName := printf "%s-baseline" $name }}
-
-{{ $policyAttachments := $parameters.policyAttachments | default (list) }}
-{{ $accountAdminRoleName := "OrganizationAccountAccessRole" }}
-
-{{ $baselineGuardDutyEnabled := not $isSandboxEnvironment }}
-{{ $baselineSecurityHubEnabled := not $isSandboxEnvironment }}
-{{ $baselineConfigRecorderEnabled := not $isSandboxEnvironment }}
+{{ $iamUserName := printf "crossplane-%s" $name }}
+{{ $iamPolicyName := printf "crossplane-%s-assumerole" $name }}
+{{ $credentialsSecretName := printf "%s-aws-credentials" $name }}
