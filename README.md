@@ -1,14 +1,14 @@
 # configuration-account
 
-`configuration-account` is the Crossplane configuration package that vends AWS Organizations accounts for Hops. It is the single public entrypoint for creating both root and workload accounts: it bootstraps (or observes) the org, builds OU hierarchies, provisions member accounts, wires any requested SCP attachments, and immediately exposes a ready-to-use AWS `ProviderConfig`.
+`configuration-account` is a Crossplane configuration package that provisions AWS Organizations member accounts. It creates a new account within an existing organizational unit, optionally attaches Service Control Policies, and automatically generates an IAM user with a ProviderConfig for immediate Crossplane access to the new account.
 
 ## Highlights
 
-- **Org-first workflow** – Creates (or observes) the Organizations root once, then ensures caller-requested OU paths exist before any member accounts render unless you pass a `parentId` override.
-- **Managed/self modes** – `spec.managementMode` toggles whether we expect Hops to operate the account (`managed`) or hand it over after provisioning (`self`).
-- **Automatic ProviderConfigs** – Every account emits an `aws.m.upbound.io/v1beta1, Kind=ProviderConfig` that points at the new account and assumes the standard `OrganizationAccountAccessRole`.
-- **Account baseline handoff** – As soon as the member account is ready we emit the private `AccountBaseline` composite so GuardDuty, Security Hub, Config, and other controls flip on (or stay off for sandbox environments).
-- **Status projection** – Surfaces the provisioned `accountId`, `orgId`, `adminRoleArn`, and ProviderConfig name directly on the composite.
+- **Simple member account creation** – Creates AWS Organizations member accounts within a specified parent (root or OU).
+- **Automatic IAM access** – Generates an IAM user in the management account with credentials stored in a Secret, ready to assume the `OrganizationAccountAccessRole` in the new account.
+- **ProviderConfig ready** – Emits a fully configured `aws.m.upbound.io/v1beta1, Kind=ProviderConfig` using assumeRoleChain for immediate use with other Crossplane resources.
+- **SCP attachments** – Optionally attach Service Control Policies to the account for governance.
+- **Status projection** – Surfaces the provisioned `accountId`, `adminRoleArn`, IAM user details, and ProviderConfig name on the composite status.
 
 ## Spec
 
@@ -16,36 +16,34 @@
 apiVersion: aws.hops.ops.com.ai/v1alpha1
 kind: Account
 metadata:
-  name: acme-prod
+  name: team-platform-dev
+  namespace: hops
 spec:
-  providerConfigName: management-aws
-  managementMode: self            # default self, or "managed"
-  managementPolicies: ["*"]       # optional Crossplane propagation controls
-  parameters:
-    name: "Acme Production"       # AWS account display name
-    emailPrefix: acme-prod-2025   # becomes acme-prod-2025@<emailDomain>
-    emailDomain: accounts.example.com   # optional, defaults to example.com
-    email: prod-account@acme.com        # optional explicit address
-    ouPath: root/workloads/prod/acme-prod # creates OU path if needed; "root" bootstraps the org
-    parentId: ou-abc123example      # optional – skip OU creation and place account directly
-    environment: prod             # root | sandbox | dev | prod | tenant | testing (default dev)
-    policyAttachments:            # optional list of SCP ARNs
-      - arn:aws:organizations::111111111111:policy/o-example/p-deny-root
-    tags:
-      team: platform
+  email: platform-dev@mycompany.com     # required: unique AWS account email
+  parentId: r-1234                      # required: Organizations root or OU ID
+  providerConfigName: management-aws    # optional: management account ProviderConfig (default: "default")
+  managementPolicies: ["*"]             # optional: Crossplane propagation controls
+  policyAttachments:                    # optional: list of SCP ARNs
+    - arn:aws:organizations::111111111111:policy/o-example/p-deny-root
+  tags:                                 # optional: AWS tags (automatically includes "hops: true")
+    team: platform
+    environment: dev
+  providerConfig:                       # optional: customize generated ProviderConfig
+    name: custom-name                   # override ProviderConfig name (default: account name)
+    secretNamespace: custom-ns          # override Secret namespace (default: account namespace)
 ```
 
-When `emailDomain` is omitted we append the prefix to `example.com`. You can also pass `parameters.email` to override the full address if needed.
-The `environment` flag only drives the baseline feature toggles (GuardDuty, Security Hub, Config) so you can keep sandboxes lightweight without impacting production accounts.
+The account name (from `metadata.name`) becomes the AWS account name unless customized. The configuration creates an IAM user named `crossplane-{account-name}` in the management account and stores credentials in a Secret named `{account-name}-aws-credentials`.
 
 ## Status
 
 ```yaml
 status:
   accountId: "123456789012"
-  orgId: "o-1a2b3c4d5e"
-  providerConfigName: "acme-prod"
   adminRoleArn: "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  providerConfigName: "team-platform-dev"
+  iamUserName: "crossplane-team-platform-dev"
+  credentialsSecretName: "team-platform-dev-aws-credentials"
   ready: true
 ```
 
@@ -61,7 +59,7 @@ This configuration depends on the following Crossplane packages (see `apis/accou
 
 ## Examples
 
-See `examples/accounts/` for ready-to-render specs covering the common environments (root bootstrap, prod, sandbox/testing). Run `make render-example` to render `examples/accounts/example-member.yaml`.
+See `examples/accounts/example.yaml` for a ready-to-render member account spec. Run `make render-example` to render the example.
 
 ## Development
 
@@ -71,4 +69,4 @@ See `examples/accounts/` for ready-to-render specs covering the common environme
 | `make validate`    | Validates the XRD + examples with `up xrd validate`    |
 | `make test`        | Executes all `up test run tests/*` suites          |
 
-Follow the plan in `docs/plan/01-account-xrd.md`; hoist variables in `functions/render/00-desired-values.yaml.gotmpl`, keep SCPs isolated, and prefer the IRSA-style observable/resource separation for future usage gating.
+Variables are hoisted in `functions/render/00-desired-values.yaml.gotmpl`. The composition follows the standard Hops pattern with desired values, observed resources (for status projection), and conditional resource rendering based on readiness.
