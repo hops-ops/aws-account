@@ -1,4 +1,6 @@
-# configuration-account
+# [wip] configuration-account
+
+> Note: This is still a work-in-progress!
 
 `configuration-account` is a Crossplane configuration package that provisions AWS Organizations member accounts. It creates a new account within an existing organizational unit, optionally attaches Service Control Policies, and automatically generates an IAM user with a ProviderConfig for immediate Crossplane access to the new account.
 
