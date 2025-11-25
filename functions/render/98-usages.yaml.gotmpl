@@ -1,0 +1,109 @@
+# code: language=yaml
+# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+
+{{ $renderUserUsageByAttachment := and $iamUserReady $iamPolicyAttachmentReady }}
+{{ $renderPolicyUsageByAttachment := and $iamPolicyReady $iamPolicyAttachmentReady }}
+{{ $renderUserUsageByAccessKey := and $iamUserReady $accessKeyReady }}
+
+{{- if $renderUserUsageByAttachment }}
+---
+
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ printf "of-user-%s-by-upa-%s" $name $name }}
+  annotations:
+    gotemplating.fn.crossplane.io/composition-resource-name: "iam-user-used-by-attachment"
+spec:
+  replayDeletion: true
+  by:
+    apiVersion: iam.aws.m.upbound.io/v1beta1
+    kind: UserPolicyAttachment
+    resourceRef:
+      name: {{ $name }}
+  of:
+    apiVersion: iam.aws.m.upbound.io/v1beta1
+    kind: User
+    resourceRef:
+      name: {{ $name }}
+
+{{- end }}
+
+{{- if $renderPolicyUsageByAttachment }}
+---
+
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ printf "of-policy-%s-by-upa-%s" $name $name }}
+  annotations:
+    gotemplating.fn.crossplane.io/composition-resource-name: "iam-policy-used-by-attachment"
+spec:
+  replayDeletion: true
+  by:
+    apiVersion: iam.aws.m.upbound.io/v1beta1
+    kind: UserPolicyAttachment
+    resourceRef:
+      name: {{ $name }}
+  of:
+    apiVersion: iam.aws.m.upbound.io/v1beta1
+    kind: Policy
+    resourceRef:
+      name: {{ $name }}
+
+{{- end }}
+
+{{- if $renderUserUsageByAccessKey }}
+---
+
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ printf "of-user-%s-by-key-%s" $name $name }}
+  annotations:
+    gotemplating.fn.crossplane.io/composition-resource-name: "iam-user-used-by-accesskey"
+spec:
+  replayDeletion: true
+  by:
+    apiVersion: iam.aws.m.upbound.io/v1beta1
+    kind: AccessKey
+    resourceRef:
+      name: {{ $name }}
+  of:
+    apiVersion: iam.aws.m.upbound.io/v1beta1
+    kind: User
+    resourceRef:
+      name: {{ $name }}
+
+{{- end }}
+
+{{ range $index, $_ := $policyAttachments }}
+  {{ $scpAttachmentName := printf "%s-scp-%d" $name $index }}
+  {{ $policyAttachmentKey := printf "policy-attachment-%d" $index }}
+  {{ $policyAttachmentReady := get $policyAttachmentReadiness $policyAttachmentKey | default false }}
+  {{ $renderAccountUsageBySCP := and $accountReady $policyAttachmentReady }}
+
+  {{- if $renderAccountUsageBySCP }}
+---
+
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ printf "of-account-%s-by-scp-%d" $name $index }}
+  annotations:
+    gotemplating.fn.crossplane.io/composition-resource-name: {{ printf "account-used-by-scp-%d" $index | quote }}
+spec:
+  replayDeletion: true
+  by:
+    apiVersion: organizations.aws.m.upbound.io/v1beta1
+    kind: PolicyAttachment
+    resourceRef:
+      name: {{ $scpAttachmentName }}
+  of:
+    apiVersion: organizations.aws.m.upbound.io/v1beta1
+    kind: Account
+    resourceRef:
+      name: {{ $accountResourceName }}
+
+  {{- end }}
+{{ end }}
