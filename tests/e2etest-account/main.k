@@ -17,9 +17,10 @@ _base64_creds = base64.encode(_creds)
 # Test OU - use the existing OU in the hops organization
 _test_ou_id = "ou-hdvp-fbcb7sbw"
 
-# Persistent test account - imported each run, orphaned on delete
-_test_account_name = "configuration-aws-account"
-_test_account_email = "configuration-aws-account@ops.com.ai"
+# Persistent test account - shared with configuration-aws-organization, imported each run
+_test_account_name = "configuration-aws-organization"
+_test_account_id = "544051101726"
+_test_account_email = "configuration-aws-organization@ops.com.ai"
 
 _items = [
     metav1alpha1.E2ETest{
@@ -34,6 +35,7 @@ _items = [
                         namespace: "default"
                     }
                     spec: {
+                        externalName: _test_account_id
                         email: _test_account_email
                         parentId: _test_ou_id
                         # Orphan on delete - AWS accounts cannot be deleted via API
