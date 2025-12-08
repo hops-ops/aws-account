@@ -30,74 +30,6 @@
   {{ $adminRoleArn = printf "arn:aws:iam::%s:role/%s" $accountId $accountAdminRoleName }}
 {{ end }}
 
-# IAM User observation (for ProviderConfig automation)
-{{ $iamUserObservation := get $observedResources "iam-user" }}
-{{ $iamUserReady := false }}
-
-{{ with $iamUserObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ $conditionType := get . "type" | default "" }}
-    {{ $conditionStatus := get . "status" | default "" }}
-    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-      {{ $iamUserReady = true }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-# IAM Policy observation
-{{ $iamPolicyObservation := get $observedResources "iam-policy" }}
-{{ $iamPolicyReady := false }}
-
-{{ with $iamPolicyObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ $conditionType := get . "type" | default "" }}
-    {{ $conditionStatus := get . "status" | default "" }}
-    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-      {{ $iamPolicyReady = true }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-# IAM UserPolicyAttachment observation
-{{ $iamPolicyAttachmentObservation := get $observedResources "iam-user-policy-attachment" }}
-{{ $iamPolicyAttachmentReady := false }}
-
-{{ with $iamPolicyAttachmentObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ $conditionType := get . "type" | default "" }}
-    {{ $conditionStatus := get . "status" | default "" }}
-    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-      {{ $iamPolicyAttachmentReady = true }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
-# IAM AccessKey observation
-{{ $accessKeyObservation := get $observedResources "iam-access-key" }}
-{{ $accessKeyReady := false }}
-
-{{ with $accessKeyObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ $conditionType := get . "type" | default "" }}
-    {{ $conditionStatus := get . "status" | default "" }}
-    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-      {{ $accessKeyReady = true }}
-    {{ end }}
-  {{ end }}
-{{ end }}
-
 # SCP PolicyAttachment observations
 {{ $policyAttachmentReadiness := dict }}
 {{ range $index, $_ := $policyAttachments }}
@@ -120,5 +52,3 @@
 
   {{ $_ := set $policyAttachmentReadiness $policyAttachmentKey $policyAttachmentReady }}
 {{ end }}
-
-{{ $providerConfigReady := $accountReady }}

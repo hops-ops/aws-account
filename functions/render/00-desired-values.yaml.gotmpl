@@ -22,17 +22,3 @@
 {{ $accountResourceName := $name }}
 
 {{ $accountAdminRoleName := "hops" }}
-
-# ProviderConfig settings
-{{ $providerConfigSpec := $spec.providerConfig | default (dict) }}
-{{ $providerConfigCustomName := $providerConfigSpec.name | default "" }}
-{{ $providerConfigSecretNamespace := $providerConfigSpec.secretNamespace | default $namespace }}
-
-# Computed resource names
-{{ $accountProviderConfigName := $providerConfigCustomName }}
-{{ if not $accountProviderConfigName }}
-  {{ $accountProviderConfigName = $name }}
-{{ end }}
-{{ $iamUserName := printf "crossplane-%s" $name }}
-{{ $iamPolicyName := printf "crossplane-%s-assumerole" $name }}
-{{ $credentialsSecretName := printf "%s-aws-credentials" $name }}

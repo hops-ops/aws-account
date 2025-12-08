@@ -10,8 +10,5 @@ status:
   ready: {{ if $accountReady }}true{{ else }}false{{ end }}
   accountId: "{{ $accountId }}"
   adminRoleArn: "{{ $adminRoleArn }}"
-  providerConfigName: "{{ $accountProviderConfigName }}"
-  iamUserName: "{{ $iamUserName }}"
-  credentialsSecretName: "{{ $credentialsSecretName }}"
 
 {{ end }}

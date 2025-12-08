@@ -57,28 +57,12 @@ spec:
                 type: object
                 description: "AWS resource tags. Automatically includes {\"hops\": \"true\"}."
                 x-kubernetes-preserve-unknown-fields: true
-              providerConfig:
-                type: object
-                description: Configuration for automated ProviderConfig creation. Creates IAM user, access key, and ProviderConfig with assumeRoleChain.
-                properties:
-                  name:
-                    type: string
-                    description: Override ProviderConfig name. Defaults to the account name.
-                  secretNamespace:
-                    type: string
-                    description: Namespace for the credentials Secret. Defaults to the Account's namespace.
           status:
             type: object
             properties:
               accountId:
                 type: string
               adminRoleArn:
-                type: string
-              providerConfigName:
-                type: string
-              iamUserName:
-                type: string
-              credentialsSecretName:
                 type: string
               ready:
                 type: boolean
