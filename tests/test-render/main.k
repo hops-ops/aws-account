@@ -119,6 +119,46 @@ _items = [
                 }
             ]
         }
+    },
+    metav1alpha1.CompositionTest{
+        metadata.name: "test-account-import-with-external-name"
+        spec = {
+            compositionPath: _composition
+            xrPath: "examples/accounts/example-import.yaml"
+            xrdPath: _xrd
+            timeoutSeconds: 180
+            validate: True
+            observedResources: []
+            assertResources: [
+                {
+                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
+                    kind: "Account"
+                    metadata: {
+                        name: "imported-account"
+                        annotations: {
+                            "crossplane.io/external-name": "123456789012"
+                        }
+                    }
+                    spec: {
+                        managementPolicies: ["*"]
+                        providerConfigRef: {
+                            name: "management-aws"
+                        }
+                        forProvider: {
+                            name: "imported-account"
+                            email: "existing-account@mycompany.com"
+                            parentId: "ou-abc1-12345678"
+                            tags: {
+                                hops: "true"
+                                team: "platform"
+                                environment: "prod"
+                                imported: "true"
+                            }
+                        }
+                    }
+                }
+            ]
+        }
     }
 ]
 items = _items

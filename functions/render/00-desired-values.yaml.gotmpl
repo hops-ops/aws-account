@@ -8,6 +8,7 @@
 {{ $name := $metadata.name | default "" }}
 {{ $namespace := $metadata.namespace | default "" }}
 
+{{ $externalName := $spec.externalName | default "" }}
 {{ $email := $spec.email | default "" }}
 {{ $parentId := $spec.parentId | default "" }}
 {{ $providerConfigName := $spec.providerConfigName | default "default" }}

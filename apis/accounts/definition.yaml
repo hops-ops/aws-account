@@ -24,6 +24,11 @@ spec:
             - email
             - parentId
             properties:
+              externalName:
+                type: string
+                description: |
+                  AWS Account ID to adopt (e.g., 123456789012).
+                  When set, Crossplane imports the existing account instead of creating a new one.
               email:
                 type: string
                 description: AWS account email address. Must be unique across all AWS accounts.

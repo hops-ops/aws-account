@@ -15,6 +15,9 @@ metadata:
     hops.ops.com.ai/account: {{ $name }}
   annotations:
     gotemplating.fn.crossplane.io/composition-resource-name: "member-account"
+    {{ if $externalName }}
+    crossplane.io/external-name: {{ $externalName | quote }}
+    {{ end }}
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
