@@ -17,9 +17,9 @@ _base64_creds = base64.encode(_creds)
 # Test OU - use the existing OU in the hops organization
 _test_ou_id = "ou-hdvp-fbcb7sbw"
 
-# Timestamped account to allow concurrent test runs
-_test_account_name = "configuration-aws-account-" + _now
-_test_account_email = "configuration-aws-account+" + _now + "@ops.com.ai"
+# Persistent test account - imported each run, orphaned on delete
+_test_account_name = "configuration-aws-account"
+_test_account_email = "configuration-aws-account@ops.com.ai"
 
 _items = [
     metav1alpha1.E2ETest{
@@ -36,6 +36,8 @@ _items = [
                     spec: {
                         email: _test_account_email
                         parentId: _test_ou_id
+                        # Orphan on delete - AWS accounts cannot be deleted via API
+                        managementPolicies: ["Create", "Observe", "Update", "LateInitialize"]
                         tags: {
                             "e2etest": "true"
                             "test-run": _now
