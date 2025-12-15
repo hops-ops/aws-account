@@ -13,12 +13,12 @@ permissions:
 jobs:
 
   validate:
-    uses: unbounded-tech/workflows-crossplane/.github/workflows/validate.yaml@feat/validate-observed-resources
+    uses: unbounded-tech/workflows-crossplane/.github/workflows/validate.yaml@v1.0.0
     with:
       examples: |
         [
           { "example": "examples/accounts/example.yaml" },
-          { "example": "examples/accounts/example.yaml", "observed_resources": "examples/observed-resources/step-1" }
+          { "example": "examples/accounts/example.yaml", "observed_resources": "examples/observed-resources/example/steps/1" }
         ]
       api_path: apis/accounts
       error_on_missing_schemas: true

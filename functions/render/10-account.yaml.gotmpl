@@ -1,23 +1,18 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
-
 {{ if $parentId }}
-
 ---
-
 apiVersion: organizations.aws.m.upbound.io/v1beta1
 kind: Account
 metadata:
-  name: {{ $accountResourceName }}
-  namespace: {{ $namespace }}
+  name: {{ $name }}
   labels:
     hops.ops.com.ai/managed: "true"
     hops.ops.com.ai/account: {{ $name }}
   annotations:
-    gotemplating.fn.crossplane.io/composition-resource-name: "member-account"
-    {{ if $externalName }}
+    {{ setResourceNameAnnotation "member-account" }}
+    {{- if $externalName }}
     crossplane.io/external-name: {{ $externalName | quote }}
-    {{ end }}
+    {{- end }}
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
@@ -27,11 +22,5 @@ spec:
     name: {{ $name }}
     email: {{ $email }}
     parentId: {{ $parentId }}
-    {{- if $tags }}
-    tags:
-      {{- range $k, $v := $tags }}
-      {{ $k }}: {{ quote $v }}
-      {{- end }}
-    {{- end }}
-
+    tags: {{ toYaml $tags | nindent 6 }}
 {{ end }}

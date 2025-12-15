@@ -19,6 +19,7 @@ This repository publishes the `Account` configuration package for creating AWS O
 - Member accounts in an existing AWS Organization
 - ProviderConfig for assumed-role access via OrganizationAccountAccessRole
 - Optional SCP attachments
+- Cross-account access role (`cross-account-access`) with permission boundary
 
 **Does NOT Create**:
 - AWS Organizations (user creates manually)

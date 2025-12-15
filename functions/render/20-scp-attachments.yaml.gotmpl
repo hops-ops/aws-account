@@ -1,21 +1,19 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+# SCP PolicyAttachments - attach after account is ready
 
 {{ if and $accountReady $accountId }}
-  {{- range $index, $policyArn := $policyAttachments }}
-
+{{- range $policyArn := $policyAttachments }}
+{{- $policyId := splitList "/" $policyArn | last }}
 ---
-
 apiVersion: organizations.aws.m.upbound.io/v1beta1
 kind: PolicyAttachment
 metadata:
-  name: {{ printf "%s-scp-%d" $name $index }}
-  namespace: {{ $namespace }}
+  name: {{ $name }}-{{ $policyId }}
   labels:
     hops.ops.com.ai/managed: "true"
     hops.ops.com.ai/account: {{ $name }}
   annotations:
-    gotemplating.fn.crossplane.io/composition-resource-name: {{ printf "policy-attachment-%d" $index | quote }}
+    {{ setResourceNameAnnotation (printf "policy-attachment-%s" $policyId) }}
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
@@ -23,7 +21,6 @@ spec:
     name: {{ $providerConfigName }}
   forProvider:
     policyId: {{ $policyArn }}
-    targetId: {{ quote $accountId }}
-
-  {{- end }}
+    targetId: "{{ $accountId }}"
+{{- end }}
 {{ end }}

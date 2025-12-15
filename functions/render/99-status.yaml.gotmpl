@@ -1,14 +1,10 @@
 # code: language=yaml
-
 {{ if $observedResources }}
-
 ---
-
 apiVersion: aws.hops.ops.com.ai/v1alpha1
 kind: Account
 status:
-  ready: {{ if $accountReady }}true{{ else }}false{{ end }}
+  ready: {{ $accountReady }}
   accountId: "{{ $accountId }}"
   adminRoleArn: "{{ $adminRoleArn }}"
-
 {{ end }}

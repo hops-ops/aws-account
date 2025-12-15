@@ -67,7 +67,10 @@ spec:
             properties:
               accountId:
                 type: string
+                description: AWS account ID of the member account.
               adminRoleArn:
                 type: string
+                description: ARN of the OrganizationAccountAccessRole in the member account.
               ready:
                 type: boolean
+                description: Whether all resources are ready.

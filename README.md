@@ -1,16 +1,6 @@
-# [wip] configuration-aws-account
+# configuration-aws-account
 
-> Note: This is still a work-in-progress!
-
-`configuration-aws-account` is a Crossplane configuration package that provisions AWS Organizations member accounts. It creates a new account within an existing organizational unit, optionally attaches Service Control Policies, and automatically generates an IAM user with a ProviderConfig for immediate Crossplane access to the new account.
-
-## Highlights
-
-- **Simple member account creation** – Creates AWS Organizations member accounts within a specified parent (root or OU).
-- **Automatic IAM access** – Generates an IAM user in the management account with credentials stored in a Secret, ready to assume the `OrganizationAccountAccessRole` in the new account.
-- **ProviderConfig ready** – Emits a fully configured `aws.m.upbound.io/v1beta1, Kind=ProviderConfig` using assumeRoleChain for immediate use with other Crossplane resources.
-- **SCP attachments** – Optionally attach Service Control Policies to the account for governance.
-- **Status projection** – Surfaces the provisioned `accountId`, `adminRoleArn`, IAM user details, and ProviderConfig name on the composite status.
+Crossplane configuration for AWS Organizations member accounts. Creates accounts and attaches SCPs.
 
 ## Spec
 
@@ -24,18 +14,12 @@ spec:
   email: platform-dev@mycompany.com     # required: unique AWS account email
   parentId: r-1234                      # required: Organizations root or OU ID
   providerConfigName: management-aws    # optional: management account ProviderConfig (default: "default")
-  managementPolicies: ["*"]             # optional: Crossplane propagation controls
   policyAttachments:                    # optional: list of SCP ARNs
     - arn:aws:organizations::111111111111:policy/o-example/p-deny-root
   tags:                                 # optional: AWS tags (automatically includes "hops: true")
     team: platform
     environment: dev
-  providerConfig:                       # optional: customize generated ProviderConfig
-    name: custom-name                   # override ProviderConfig name (default: account name)
-    secretNamespace: custom-ns          # override Secret namespace (default: account namespace)
 ```
-
-The account name (from `metadata.name`) becomes the AWS account name unless customized. The configuration creates an IAM user named `crossplane-{account-name}` in the management account and stores credentials in a Secret named `{account-name}-aws-credentials`.
 
 ## Status
 
@@ -43,10 +27,31 @@ The account name (from `metadata.name`) becomes the AWS account name unless cust
 status:
   accountId: "123456789012"
   adminRoleArn: "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
-  providerConfigName: "team-platform-dev"
-  iamUserName: "crossplane-team-platform-dev"
-  credentialsSecretName: "team-platform-dev-aws-credentials"
   ready: true
+```
+
+## Cross-Account Access
+
+To manage resources in the new account, create a ProviderConfig that assumes the `OrganizationAccountAccessRole`:
+
+```yaml
+apiVersion: aws.upbound.io/v1beta1
+kind: ProviderConfig
+metadata:
+  name: team-platform-dev
+spec:
+  credentials:
+    source: PodIdentity
+  assumeRoleChain:
+    - roleARN: arn:aws:iam::123456789012:role/OrganizationAccountAccessRole
+```
+
+Then reference it in other resources:
+
+```yaml
+spec:
+  providerConfigRef:
+    name: team-platform-dev
 ```
 
 ## Dependencies

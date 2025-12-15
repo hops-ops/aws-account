@@ -1,33 +1,35 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
+# Usages ensure SCPs are detached before account deletion
 
-{{ range $index, $_ := $policyAttachments }}
-  {{ $scpAttachmentName := printf "%s-scp-%d" $name $index }}
-  {{ $policyAttachmentKey := printf "policy-attachment-%d" $index }}
-  {{ $policyAttachmentReady := get $policyAttachmentReadiness $policyAttachmentKey | default false }}
-  {{ $renderAccountUsageBySCP := and $accountReady $policyAttachmentReady }}
-
-  {{- if $renderAccountUsageBySCP }}
+{{ range $policyArn := $policyAttachments }}
+{{- $policyId := splitList "/" $policyArn | last }}
+{{- $resourceName := printf "policy-attachment-%s" $policyId }}
+{{- $obs := get $observedResources $resourceName }}
+{{- $ready := false }}
+{{- with $obs }}
+  {{- range (.resource.status.conditions | default (list)) }}
+    {{- if and (eq .type "Ready") (eq .status "True") }}{{ $ready = true }}{{ end }}
+  {{- end }}
+{{- end }}
+{{- if and $accountReady $ready }}
 ---
-
 apiVersion: protection.crossplane.io/v1beta1
 kind: Usage
 metadata:
-  name: {{ printf "of-account-%s-by-scp-%d" $name $index }}
+  name: {{ $name }}-usage-{{ $policyId }}
   annotations:
-    gotemplating.fn.crossplane.io/composition-resource-name: {{ printf "account-used-by-scp-%d" $index | quote }}
+    {{ setResourceNameAnnotation (printf "usage-%s" $policyId) }}
 spec:
   replayDeletion: true
   by:
     apiVersion: organizations.aws.m.upbound.io/v1beta1
     kind: PolicyAttachment
     resourceRef:
-      name: {{ $scpAttachmentName }}
+      name: {{ $name }}-{{ $policyId }}
   of:
     apiVersion: organizations.aws.m.upbound.io/v1beta1
     kind: Account
     resourceRef:
-      name: {{ $accountResourceName }}
-
-  {{- end }}
+      name: {{ $name }}
+{{- end }}
 {{ end }}

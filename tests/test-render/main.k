@@ -121,6 +121,78 @@ _items = [
         }
     },
     metav1alpha1.CompositionTest{
+        metadata.name: "test-cross-account-providerconfig"
+        spec = {
+            compositionPath: _composition
+            xrPath: "examples/accounts/example-cross-account.yaml"
+            xrdPath: _xrd
+            timeoutSeconds: 180
+            validate: True
+            observedResources: [
+                _account_observation
+            ]
+            assertResources: [
+                {
+                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
+                    kind: "Account"
+                    metadata: {
+                        name: "team-platform-dev"
+                    }
+                    spec: {
+                        managementPolicies: ["*"]
+                        providerConfigRef: {
+                            name: "management-aws"
+                        }
+                        forProvider: {
+                            name: "team-platform-dev"
+                            email: "platform-dev@mycompany.com"
+                            parentId: "ou-abc1-12345678"
+                            tags: {
+                                hops: "true"
+                                team: "platform"
+                                environment: "dev"
+                            }
+                        }
+                    }
+                },
+                {
+                    apiVersion: "organizations.aws.m.upbound.io/v1beta1"
+                    kind: "PolicyAttachment"
+                    metadata: {
+                        name: "team-platform-dev-scp-0"
+                    }
+                    spec: {
+                        managementPolicies: ["*"]
+                        providerConfigRef: {
+                            name: "management-aws"
+                        }
+                        forProvider: {
+                            policyId: "arn:aws:organizations::111111111111:policy/o-example/p-deny-root"
+                            targetId: "123456789012"
+                        }
+                    }
+                },
+                {
+                    apiVersion: "aws.upbound.io/v1beta1"
+                    kind: "ProviderConfig"
+                    metadata: {
+                        name: "team-platform-dev"
+                    }
+                    spec: {
+                        credentials: {
+                            source: "IRSA"
+                        }
+                        assumeRoleChain: [
+                            {
+                                roleARN: "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+                            }
+                        ]
+                    }
+                }
+            ]
+        }
+    },
+    metav1alpha1.CompositionTest{
         metadata.name: "test-account-import-with-external-name"
         spec = {
             compositionPath: _composition

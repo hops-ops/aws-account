@@ -1,54 +1,24 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
-
 {{ $observedResources := $.observed.resources | default (dict) }}
 
+# Account observation
 {{ $accountObservation := get $observedResources "member-account" }}
 {{ $accountReady := false }}
 {{ $accountId := "" }}
-
 {{ with $accountObservation }}
-  {{ $resource := .resource | default (dict) }}
-  {{ $status := $resource.status | default (dict) }}
-  {{ $conditions := $status.conditions | default (list) }}
-  {{ range $conditions }}
-    {{ $conditionType := get . "type" | default "" }}
-    {{ $conditionStatus := get . "status" | default "" }}
-    {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
+  {{ $status := .resource.status | default (dict) }}
+  {{ range ($status.conditions | default (list)) }}
+    {{ if and (eq .type "Ready") (eq .status "True") }}
       {{ $accountReady = true }}
     {{ end }}
   {{ end }}
-  {{ $atProvider := $status.atProvider | default (dict) }}
-  {{ $accountIdCandidate := $atProvider.id | default "" }}
-  {{ if $accountIdCandidate }}
-    {{ $accountId = $accountIdCandidate }}
+  {{ if $status.atProvider.id }}
+    {{ $accountId = $status.atProvider.id }}
   {{ end }}
 {{ end }}
 
+# Role ARN for cross-account access (AWS creates OrganizationAccountAccessRole automatically)
 {{ $adminRoleArn := "" }}
 {{ if $accountId }}
-  {{ $adminRoleArn = printf "arn:aws:iam::%s:role/%s" $accountId $accountAdminRoleName }}
-{{ end }}
-
-# SCP PolicyAttachment observations
-{{ $policyAttachmentReadiness := dict }}
-{{ range $index, $_ := $policyAttachments }}
-  {{ $policyAttachmentKey := printf "policy-attachment-%d" $index }}
-  {{ $policyAttachmentObservation := get $observedResources $policyAttachmentKey }}
-  {{ $policyAttachmentReady := false }}
-
-  {{ with $policyAttachmentObservation }}
-    {{ $resource := .resource | default (dict) }}
-    {{ $status := $resource.status | default (dict) }}
-    {{ $conditions := $status.conditions | default (list) }}
-    {{ range $conditions }}
-      {{ $conditionType := get . "type" | default "" }}
-      {{ $conditionStatus := get . "status" | default "" }}
-      {{ if and (eq $conditionType "Ready") (eq $conditionStatus "True") }}
-        {{ $policyAttachmentReady = true }}
-      {{ end }}
-    {{ end }}
-  {{ end }}
-
-  {{ $_ := set $policyAttachmentReadiness $policyAttachmentKey $policyAttachmentReady }}
+  {{ $adminRoleArn = printf "arn:aws:iam::%s:role/OrganizationAccountAccessRole" $accountId }}
 {{ end }}

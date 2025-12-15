@@ -6,23 +6,21 @@ clean:
 build:
 	up project build
 
-render: render-example-step-1 render-example-step-2
+render: render-step-1 render-step-2
 
-render-example-step-1:
+render-step-1:
 	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml
 
-render-example-step-2:
-	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml --observed-resources=examples/observed-resources/step-1/
+render-step-2:
+	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml --observed-resources=examples/observed-resources/example/steps/1/
 
 test:
 	up test run tests/test*
 
-validate: validate-composition validate-example
+validate:
+	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml --observed-resources=examples/observed-resources/example/steps/1/ --include-full-xr --quiet | crossplane beta validate apis/accounts -
 
-validate-composition:
-	up composition render --xrd=apis/accounts/definition.yaml apis/accounts/composition.yaml examples/accounts/example.yaml --observed-resources=examples/observed-resources/step-1/ --include-full-xr --quiet | crossplane beta validate apis/accounts --error-on-missing-schemas -
-
-validate-example:
+validate-examples:
 	crossplane beta validate apis/accounts examples/accounts
 
 publish:

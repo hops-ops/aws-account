@@ -1,25 +1,14 @@
 # code: language=yaml
-# yaml-language-server: $schema=../../.up/json/models/index.schema.json
-
 {{ $xr := getCompositeResource . }}
 {{ $metadata := $xr.metadata | default (dict) }}
 {{ $spec := $xr.spec | default (dict) }}
 
 {{ $name := $metadata.name | default "" }}
-{{ $namespace := $metadata.namespace | default "" }}
-
 {{ $externalName := $spec.externalName | default "" }}
 {{ $email := $spec.email | default "" }}
 {{ $parentId := $spec.parentId | default "" }}
 {{ $providerConfigName := $spec.providerConfigName | default "default" }}
 {{ $managementPolicies := $spec.managementPolicies | default (list "*") }}
 {{ $policyAttachments := $spec.policyAttachments | default (list) }}
-
 {{ $defaultTags := dict "hops" "true" }}
 {{ $tags := merge $defaultTags ($spec.tags | default (dict)) }}
-
-{{ $defaultLabels := dict "hops.ops.com.ai/managed" "true" }}
-
-{{ $accountResourceName := $name }}
-
-{{ $accountAdminRoleName := "hops" }}

@@ -1,36 +1,16 @@
 # code: language=yaml
-# Example: Import an existing AWS account using external-name
-#
-# Use this pattern when you have an existing AWS account that you want
-# Crossplane to adopt/manage instead of creating a new one.
-#
-# The externalName field sets the crossplane.io/external-name annotation,
-# which tells the AWS provider to import the existing account by its ID.
-
+# Import an existing AWS account by setting externalName to the account ID.
+# Email must match the account's root email.
 apiVersion: aws.hops.ops.com.ai/v1alpha1
 kind: Account
 metadata:
   name: imported-account
   namespace: hops
 spec:
-  # The AWS Account ID to import (12-digit account ID)
   externalName: "123456789012"
-
-  # Email must match the existing account's root email
   email: existing-account@mycompany.com
-
-  # Parent OU or root where the account currently resides
   parentId: ou-abc1-12345678
-
-  # Provider config for the management account
   providerConfigName: management-aws
-
-  # Use Observe-only to prevent modifications, or include Update to allow changes
-  # managementPolicies:
-  #   - Observe
-  #   - LateInitialize
-
   tags:
     team: platform
     environment: prod
-    imported: "true"
