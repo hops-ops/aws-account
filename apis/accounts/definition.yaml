@@ -72,7 +72,7 @@ spec:
               accountId:
                 type: string
                 description: AWS account ID of the member account.
-              adminRoleArn:
+              organizationAccountAccessRoleArn:
                 type: string
                 description: ARN of the OrganizationAccountAccessRole in the member account.
               ready:

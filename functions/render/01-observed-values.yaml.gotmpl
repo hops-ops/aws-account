@@ -18,7 +18,7 @@
 {{ end }}
 
 # Role ARN for cross-account access (AWS creates OrganizationAccountAccessRole automatically)
-{{ $adminRoleArn := "" }}
+{{ $organizationAccountAccessRoleArn := "" }}
 {{ if $accountId }}
-  {{ $adminRoleArn = printf "arn:aws:iam::%s:role/OrganizationAccountAccessRole" $accountId }}
+  {{ $organizationAccountAccessRoleArn = printf "arn:aws:iam::%s:role/OrganizationAccountAccessRole" $accountId }}
 {{ end }}

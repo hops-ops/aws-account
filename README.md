@@ -26,7 +26,7 @@ spec:
 ```yaml
 status:
   accountId: "123456789012"
-  adminRoleArn: "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
+  organizationAccountAccessRoleArn: "arn:aws:iam::123456789012:role/OrganizationAccountAccessRole"
   ready: true
 ```
 
