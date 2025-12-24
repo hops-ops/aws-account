@@ -33,7 +33,7 @@ _items = [
         metadata.name: "test-basic-account-rendering"
         spec = {
             compositionPath: _composition
-            xrPath: "examples/accounts/example.yaml"
+            xrPath: "examples/accounts/standard.yaml"
             xrdPath: _xrd
             timeoutSeconds: 180
             validate: True
@@ -69,7 +69,7 @@ _items = [
         metadata.name: "test-account-with-observed-resources"
         spec = {
             compositionPath: _composition
-            xrPath: "examples/accounts/example.yaml"
+            xrPath: "examples/accounts/standard.yaml"
             xrdPath: _xrd
             timeoutSeconds: 180
             validate: True
@@ -124,7 +124,7 @@ _items = [
         metadata.name: "test-account-import-with-external-name"
         spec = {
             compositionPath: _composition
-            xrPath: "examples/accounts/example-import.yaml"
+            xrPath: "examples/accounts/import.yaml"
             xrdPath: _xrd
             timeoutSeconds: 180
             validate: True

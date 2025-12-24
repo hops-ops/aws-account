@@ -30,8 +30,9 @@ jobs:
     with:
       examples: |
         [
-          { "example": "examples/accounts/example.yaml" },
-          { "example": "examples/accounts/example.yaml", "observed_resources": "examples/observed-resources/example/steps/1" }
+          { "example": "examples/accounts/standard.yaml" },
+          { "example": "examples/accounts/standard.yaml", "observed_resources": "examples/observed-resources/standard/steps/1" },
+          { "example": "examples/accounts/import.yaml" }
         ]
       api_path: apis/accounts
       error_on_missing_schemas: true
