@@ -35,10 +35,18 @@ spec:
               parentId:
                 type: string
                 description: AWS Organizations parent ID (root or organizational unit) where the account will be created.
-              providerConfigName:
-                type: string
-                description: Management account ProviderConfig used for Organizations operations. Defaults to "default".
-                default: default
+              providerConfigRef:
+                type: object
+                description: Reference to the management account ProviderConfig used for Organizations operations.
+                properties:
+                  name:
+                    type: string
+                    description: Name of the ProviderConfig. Defaults to "default".
+                    default: default
+                  kind:
+                    type: string
+                    description: Kind of the ProviderConfig. Defaults to "ProviderConfig".
+                    default: ProviderConfig
               managementPolicies:
                 type: array
                 description: Crossplane management policies propagated to managed resources. Defaults to ["*"].

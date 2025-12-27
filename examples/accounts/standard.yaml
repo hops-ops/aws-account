@@ -7,7 +7,9 @@ metadata:
 spec:
   email: platform-dev@mycompany.com
   parentId: r-1234
-  providerConfigName: management-aws
+  providerConfigRef:
+    name: management-aws
+    kind: ProviderConfig
   policyAttachments:
     - arn:aws:organizations::111111111111:policy/o-example/p-deny-root
   tags:

@@ -49,6 +49,7 @@ _items = [
                         managementPolicies: ["*"]
                         providerConfigRef: {
                             name: "management-aws"
+                            kind: "ProviderConfig"
                         }
                         forProvider: {
                             name: "team-platform-dev"
@@ -87,6 +88,7 @@ _items = [
                         managementPolicies: ["*"]
                         providerConfigRef: {
                             name: "management-aws"
+                            kind: "ProviderConfig"
                         }
                         forProvider: {
                             name: "team-platform-dev"
@@ -110,6 +112,7 @@ _items = [
                         managementPolicies: ["*"]
                         providerConfigRef: {
                             name: "management-aws"
+                            kind: "ProviderConfig"
                         }
                         forProvider: {
                             policyId: "arn:aws:organizations::111111111111:policy/o-example/p-deny-root"
@@ -143,6 +146,7 @@ _items = [
                         managementPolicies: ["*"]
                         providerConfigRef: {
                             name: "management-aws"
+                            kind: "ProviderConfig"
                         }
                         forProvider: {
                             name: "imported-account"

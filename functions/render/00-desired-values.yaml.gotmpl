@@ -7,7 +7,12 @@
 {{ $externalName := $spec.externalName | default "" }}
 {{ $email := $spec.email | default "" }}
 {{ $parentId := $spec.parentId | default "" }}
-{{ $providerConfigName := $spec.providerConfigName | default "default" }}
+
+# ProviderConfigRef pattern with name and kind
+{{ $providerConfigRef := $spec.providerConfigRef | default (dict) }}
+{{ $providerConfigName := $providerConfigRef.name | default "default" }}
+{{ $providerConfigKind := $providerConfigRef.kind | default "ProviderConfig" }}
+
 {{ $managementPolicies := $spec.managementPolicies | default (list "*") }}
 {{ $policyAttachments := $spec.policyAttachments | default (list) }}
 {{ $defaultTags := dict "hops" "true" }}

@@ -10,7 +10,9 @@ spec:
   externalName: "123456789012"
   email: existing-account@mycompany.com
   parentId: ou-abc1-12345678
-  providerConfigName: management-aws
+  providerConfigRef:
+    name: management-aws
+    kind: ProviderConfig
   tags:
     team: platform
     environment: prod

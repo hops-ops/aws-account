@@ -16,8 +16,8 @@ metadata:
 spec:
   managementPolicies: {{ toYaml $managementPolicies | nindent 4 }}
   providerConfigRef:
-    kind: ProviderConfig
     name: {{ $providerConfigName }}
+    kind: {{ $providerConfigKind }}
   forProvider:
     name: {{ $name }}
     email: {{ $email }}

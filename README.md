@@ -33,7 +33,9 @@ metadata:
 spec:
   email: platform-dev@acme.example.com  # Must be unique across all AWS
   parentId: ou-abc1-workloads           # OU ID or root ID (r-xxxx)
-  providerConfigName: management        # Management account ProviderConfig
+  providerConfigRef:
+    name: management                    # Management account ProviderConfig
+    kind: ProviderConfig
   managementPolicies: ["*"]
 
   tags:
@@ -55,7 +57,9 @@ spec:
   externalName: "123456789012"  # Existing account ID
   email: legacy-prod@acme.example.com
   parentId: ou-abc1-prod
-  providerConfigName: management
+  providerConfigRef:
+    name: management
+    kind: ProviderConfig
   # Don't delete if removed from Crossplane
   managementPolicies: ["Create", "Observe", "Update", "LateInitialize"]
 ```
@@ -73,7 +77,9 @@ metadata:
 spec:
   email: sandbox@acme.example.com
   parentId: ou-abc1-sandbox
-  providerConfigName: management
+  providerConfigRef:
+    name: management
+    kind: ProviderConfig
 
   # Attach SCPs for guardrails
   policyAttachments:
@@ -140,7 +146,9 @@ metadata:
 spec:
   email: {{ $team.name }}-{{ $team.environment }}@acme.example.com
   parentId: {{ if eq $team.environment "prod" }}ou-abc1-prod{{ else }}ou-abc1-nonprod{{ end }}
-  providerConfigName: management
+  providerConfigRef:
+    name: management
+    kind: ProviderConfig
   tags:
     team: {{ $team.name }}
     environment: {{ $team.environment }}
