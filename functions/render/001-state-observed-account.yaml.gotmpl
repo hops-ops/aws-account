@@ -1,0 +1,23 @@
+# code: language=yaml
+# Observed state for member-account
+{{- $raw := $.observed.resources | default dict }}
+{{- $entry := get $raw "member-account" | default dict }}
+{{- $resource := $entry.resource | default dict }}
+{{- $status := $resource.status | default dict }}
+{{- $atProvider := $status.atProvider | default dict }}
+
+# Check readiness
+{{- $ready := false }}
+{{- range ($status.conditions | default list) }}
+  {{- if and (eq .type "Ready") (eq .status "True") }}
+    {{- $ready = true }}
+  {{- end }}
+{{- end }}
+
+# Set observed.account slice
+{{- $state = set $state "observed" (merge $state.observed (dict "account" (dict
+  "ready" $ready
+  "id" ($atProvider.id | default "")
+  "email" ($atProvider.email | default "")
+  "arn" ($atProvider.arn | default "")
+))) }}

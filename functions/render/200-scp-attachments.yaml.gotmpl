@@ -1,0 +1,47 @@
+# code: language=yaml
+# SCP PolicyAttachments - attach after account is ready
+{{- if $state.account.policyAttachments.render }}
+{{- range $attachment := $state.account.policyAttachments.items }}
+---
+apiVersion: organizations.aws.m.upbound.io/v1beta1
+kind: PolicyAttachment
+metadata:
+  name: {{ $state.account.name }}-{{ $attachment.policyId }}
+  labels:
+    hops.ops.com.ai/managed: "true"
+    hops.ops.com.ai/account: {{ $state.account.name }}
+  annotations:
+    {{ setResourceNameAnnotation $attachment.resourceName }}
+spec:
+  managementPolicies: {{ toYaml $state.account.managementPolicies | nindent 4 }}
+  providerConfigRef:
+    name: {{ $state.account.providerConfig.name }}
+    kind: {{ $state.account.providerConfig.kind }}
+  forProvider:
+    policyId: {{ $attachment.policyArn }}
+    targetId: "{{ $attachment.targetId }}"
+
+# Usage: Account protected by PolicyAttachment (renders after attachment is ready)
+{{- if $attachment.ready }}
+---
+apiVersion: protection.crossplane.io/v1beta1
+kind: Usage
+metadata:
+  name: {{ $state.account.name }}-usage-{{ $attachment.policyId }}
+  annotations:
+    {{ setResourceNameAnnotation (printf "usage-%s" $attachment.policyId) }}
+spec:
+  replayDeletion: true
+  by:
+    apiVersion: organizations.aws.m.upbound.io/v1beta1
+    kind: PolicyAttachment
+    resourceRef:
+      name: {{ $state.account.name }}-{{ $attachment.policyId }}
+  of:
+    apiVersion: organizations.aws.m.upbound.io/v1beta1
+    kind: Account
+    resourceRef:
+      name: {{ $state.account.name }}
+{{- end }}
+{{- end }}
+{{- end }}

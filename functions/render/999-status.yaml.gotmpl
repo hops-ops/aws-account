@@ -1,0 +1,12 @@
+# code: language=yaml
+{{- if $state.status.render }}
+{{- $xr := getCompositeResource . }}
+{{- $s := $state.status }}
+---
+apiVersion: {{ $xr.apiVersion }}
+kind: {{ $xr.kind }}
+status:
+  ready: {{ $s.ready }}
+  accountId: "{{ $s.accountId }}"
+  organizationAccountAccessRoleArn: "{{ $s.organizationAccountAccessRoleArn }}"
+{{- end }}

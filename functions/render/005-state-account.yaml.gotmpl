@@ -1,0 +1,48 @@
+# code: language=yaml
+# Computed state for Account XRD
+{{- $eff := $state.spec.effective }}
+{{- $obs := $state.observed }}
+
+# Core account state shared by all resources
+{{- $account := dict
+  "name" $eff.name
+  "email" $eff.email
+  "parentId" $eff.parentId
+  "externalName" $eff.externalName
+  "providerConfig" $eff.providerConfigRef
+  "managementPolicies" $eff.managementPolicies
+  "tags" $eff.tags
+  "forProvider" $eff.forProvider
+}}
+
+# Account resource render flag - always render if parentId is set
+{{- $account = set $account "render" (ne $eff.parentId "") }}
+
+# Policy attachments - only render after account is ready
+{{- $policyAttachments := list }}
+{{- if and $obs.account.ready $obs.account.id }}
+  {{- range $policyArn := $eff.policyAttachments }}
+    {{- $policyId := splitList "/" $policyArn | last }}
+    {{- $obsAttachment := get $obs.policyAttachments $policyId | default dict }}
+    {{- $policyAttachments = append $policyAttachments (dict
+      "policyArn" $policyArn
+      "policyId" $policyId
+      "targetId" $obs.account.id
+      "resourceName" (printf "policy-attachment-%s" $policyId)
+      "ready" ($obsAttachment.ready | default false)
+    ) }}
+  {{- end }}
+{{- end }}
+{{- $account = set $account "policyAttachments" (dict
+  "render" (and $obs.account.ready $obs.account.id (gt (len $eff.policyAttachments) 0))
+  "items" $policyAttachments
+) }}
+
+# OrganizationAccountAccessRole ARN - derived from account ID
+{{- $roleArn := "" }}
+{{- if $obs.account.id }}
+  {{- $roleArn = printf "arn:aws:iam::%s:role/OrganizationAccountAccessRole" $obs.account.id }}
+{{- end }}
+{{- $account = set $account "organizationAccountAccessRoleArn" $roleArn }}
+
+{{- $state = set $state "account" $account }}

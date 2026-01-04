@@ -1,0 +1,27 @@
+# code: language=yaml
+{{- $xr := getCompositeResource . }}
+{{- $metadata := $xr.metadata | default dict }}
+{{- $spec := $xr.spec | default dict }}
+
+{{- $state := dict
+  "spec" (dict
+    "raw" $spec
+    "effective" (dict
+      "name" ($metadata.name | default "")
+      "externalName" ($spec.externalName | default "")
+      "email" ($spec.email | default "")
+      "parentId" ($spec.parentId | default "")
+      "providerConfigRef" (dict
+        "name" (($spec.providerConfigRef | default dict).name | default "default")
+        "kind" (($spec.providerConfigRef | default dict).kind | default "ProviderConfig")
+      )
+      "managementPolicies" ($spec.managementPolicies | default (list "*"))
+      "policyAttachments" ($spec.policyAttachments | default list)
+      "tags" (merge (dict "hops" "true") ($spec.tags | default dict))
+      "forProvider" ($spec.forProvider | default dict)
+    )
+  )
+  "observed" (dict)
+  "account" (dict)
+  "status" (dict)
+}}
