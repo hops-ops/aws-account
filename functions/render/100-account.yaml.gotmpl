@@ -1,0 +1,29 @@
+# code: language=yaml
+{{- if $state.account.render }}
+---
+apiVersion: organizations.aws.m.upbound.io/v1beta1
+kind: Account
+metadata:
+  name: {{ $state.account.name }}
+  labels:
+    hops.ops.com.ai/managed: "true"
+    hops.ops.com.ai/account: {{ $state.account.name }}
+  annotations:
+    {{ setResourceNameAnnotation "member-account" }}
+    {{- if $state.account.externalName }}
+    crossplane.io/external-name: {{ $state.account.externalName | quote }}
+    {{- end }}
+spec:
+  managementPolicies: {{ toYaml $state.account.managementPolicies | nindent 4 }}
+  providerConfigRef:
+    name: {{ $state.account.providerConfig.name }}
+    kind: {{ $state.account.providerConfig.kind }}
+  forProvider:
+    name: {{ $state.account.name }}
+    email: {{ $state.account.email }}
+    parentId: {{ $state.account.parentId }}
+    tags: {{ toYaml $state.account.tags | nindent 6 }}
+    {{- with $state.account.forProvider }}
+    {{ toYaml . | nindent 4 }}
+    {{- end }}
+{{- end }}

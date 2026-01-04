@@ -1,0 +1,32 @@
+# code: language=yaml
+# Observed state for policy attachments
+# Each policy attachment has its own observed state keyed by policy ID
+{{- $raw := $.observed.resources | default dict }}
+{{- $eff := $state.spec.effective }}
+
+{{- $policyAttachmentStates := dict }}
+{{- range $policyArn := $eff.policyAttachments }}
+  {{- $policyId := splitList "/" $policyArn | last }}
+  {{- $resourceName := printf "policy-attachment-%s" $policyId }}
+  {{- $entry := get $raw $resourceName | default dict }}
+  {{- $resource := $entry.resource | default dict }}
+  {{- $status := $resource.status | default dict }}
+
+  {{- $ready := false }}
+  {{- range ($status.conditions | default list) }}
+    {{- if and (eq .type "Ready") (eq .status "True") }}
+      {{- $ready = true }}
+    {{- end }}
+  {{- end }}
+
+  {{- $policyAttachmentStates = set $policyAttachmentStates $policyId (dict
+    "ready" $ready
+    "policyArn" $policyArn
+    "resourceName" $resourceName
+  ) }}
+{{- end }}
+
+# Set observed.policyAttachments slice
+{{- $state = set $state "observed" (merge $state.observed (dict
+  "policyAttachments" $policyAttachmentStates
+)) }}

@@ -1,0 +1,11 @@
+# code: language=yaml
+# Compute status output values
+{{- $obs := $state.observed }}
+{{- $acc := $state.account }}
+
+{{- $state = set $state "status" (dict
+  "render" (gt (len ($.observed.resources | default dict)) 0)
+  "ready" $obs.account.ready
+  "accountId" ($obs.account.id | default "")
+  "organizationAccountAccessRoleArn" ($acc.organizationAccountAccessRoleArn | default "")
+) }}
