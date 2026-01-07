@@ -8,8 +8,8 @@ metadata:
   labels: {{ $state.account.labels | toJson }}
   annotations:
     {{ setResourceNameAnnotation "member-account" }}
-    {{- if $state.account.externalName }}
-    crossplane.io/external-name: {{ $state.account.externalName | quote }}
+    {{- if $state.account.imports.account }}
+    crossplane.io/external-name: {{ $state.account.imports.account | quote }}
     {{- end }}
 spec:
   managementPolicies: {{ toYaml $state.account.managementPolicies | nindent 4 }}

@@ -24,11 +24,6 @@ spec:
             - email
             - parentId
             properties:
-              externalName:
-                type: string
-                description: |
-                  AWS Account ID to adopt (e.g., 123456789012).
-                  When set, Crossplane imports the existing account instead of creating a new one.
               email:
                 type: string
                 description: AWS account email address. Must be unique across all AWS accounts.
@@ -61,6 +56,17 @@ spec:
                   - LateInitialize
                 default:
                 - "*"
+              imports:
+                type: object
+                description: |
+                  External names of existing AWS resources to import into Crossplane management.
+                  Use with managementPolicies excluding "Delete" to adopt without risk of deletion.
+                properties:
+                  account:
+                    type: string
+                    description: |
+                      Existing AWS account ID to import.
+                      Example: "123456789012"
               policyAttachments:
                 type: array
                 description: Optional list of Service Control Policy ARNs to attach to the account.

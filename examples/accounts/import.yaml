@@ -1,18 +1,26 @@
 # code: language=yaml
-# Import an existing AWS account by setting externalName to the account ID.
-# Email must match the account's root email.
+# Import an existing AWS account into Crossplane management.
+# managementPolicies excludes "Delete" to prevent accidental deletion.
 apiVersion: aws.hops.ops.com.ai/v1alpha1
 kind: Account
 metadata:
   name: imported-account
   namespace: hops
 spec:
-  externalName: "123456789012"
   email: existing-account@mycompany.com
   parentId: ou-abc1-12345678
   providerConfigRef:
     name: management-aws
     kind: ProviderConfig
+  # Exclude Delete to safely import without risk of accidental deletion
+  managementPolicies:
+    - Create
+    - Observe
+    - Update
+    - LateInitialize
+  # External names of existing AWS resources to import
+  imports:
+    account: "123456789012"
   tags:
     team: platform
     environment: prod

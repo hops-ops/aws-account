@@ -9,12 +9,14 @@
   (printf "hops.ops.com.ai/%s" (lower $xr.kind)) $metadata.name
 }}
 
+{{- /* Extract imports */}}
+{{- $imports := $spec.imports | default dict }}
+
 {{- $state := dict
   "spec" (dict
     "raw" $spec
     "effective" (dict
       "name" ($metadata.name | default "")
-      "externalName" ($spec.externalName | default "")
       "email" ($spec.email | default "")
       "parentId" ($spec.parentId | default "")
       "providerConfigRef" (dict
@@ -22,6 +24,9 @@
         "kind" (($spec.providerConfigRef | default dict).kind | default "ProviderConfig")
       )
       "managementPolicies" ($spec.managementPolicies | default (list "*"))
+      "imports" (dict
+        "account" ($imports.account | default "")
+      )
       "policyAttachments" ($spec.policyAttachments | default list)
       "labels" (merge $defaultLabels ($spec.labels | default dict))
       "tags" (merge (dict "hops" "true") ($spec.tags | default dict))
