@@ -1,4 +1,4 @@
-# configuration-aws-account
+# aws-account
 
 Create and manage individual AWS Organizations member accounts. This is a low-level building block - most users should use the Organization XRD with inline accounts instead.
 

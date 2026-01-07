@@ -1,6 +1,6 @@
 SHELL := /bin/bash
 
-PACKAGE ?= configuration-aws-account
+PACKAGE ?= aws-account
 XRD_DIR := apis/accounts
 COMPOSITION := $(XRD_DIR)/composition.yaml
 DEFINITION := $(XRD_DIR)/definition.yaml

@@ -66,6 +66,12 @@ spec:
                 description: Optional list of Service Control Policy ARNs to attach to the account.
                 items:
                   type: string
+              labels:
+                type: object
+                description: Custom labels applied to all managed resources. Merged with default labels (hops.ops.com.ai/managed, hops.ops.com.ai/<kind>).
+                additionalProperties:
+                  type: string
+                x-kubernetes-preserve-unknown-fields: true
               tags:
                 type: object
                 description: "AWS resource tags. Automatically includes {\"hops\": \"true\"}."

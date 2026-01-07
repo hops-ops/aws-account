@@ -1,7 +1,7 @@
 apiVersion: meta.dev.upbound.io/v2alpha1
 kind: Project
 metadata:
-  name: configuration-aws-account
+  name: aws-account
 spec:
   dependsOn:
   - apiVersion: pkg.crossplane.io/v1
@@ -17,8 +17,8 @@ spec:
   license: Apache-2.0
   maintainer: Patrick Lee Scott <pat@patscott.io>
   readme: |
-    # configuration-aws-account
+    # aws-account
 
     Creates AWS Organizations accounts, attaches environment-specific SCPs, and emits ProviderConfigs plus the AccountBaseline composite.
-  repository: ghcr.io/hops-ops/configuration-aws-account
-  source: github.com/hops-ops/configuration-aws-account
+  repository: ghcr.io/hops-ops/aws-account
+  source: github.com/hops-ops/aws-account
