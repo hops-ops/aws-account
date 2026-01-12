@@ -81,8 +81,8 @@ _items = [
     },
 
 # =============================================================================
-# Test: Tags merge with default hops tag
-# User-provided tags should merge with the default {"hops": "true"} tag
+# Test: Tags merge with default tags
+# User-provided tags should merge with the default managed/account tags
 # =============================================================================
     metav1alpha1.CompositionTest{
         metadata.name: "test-tags-merge-with-default"
@@ -109,7 +109,8 @@ _items = [
                     spec: {
                         forProvider: {
                             tags: {
-                                hops: "true"
+                                "hops.ops.com.ai/managed": "true"
+                                "hops.ops.com.ai/account": "test-tags"
                                 team: "platform"
                                 environment: "dev"
                             }
@@ -121,8 +122,8 @@ _items = [
     },
 
 # =============================================================================
-# Test: No tags still gets default hops tag
-# When no tags are provided, the default {"hops": "true"} is applied
+# Test: No tags still gets default tags
+# When no tags are provided, the default managed/account tags are applied
 # =============================================================================
     metav1alpha1.CompositionTest{
         metadata.name: "test-default-hops-tag-when-no-tags"
@@ -148,7 +149,8 @@ _items = [
                     spec: {
                         forProvider: {
                             tags: {
-                                hops: "true"
+                                "hops.ops.com.ai/managed": "true"
+                                "hops.ops.com.ai/account": "test-no-tags"
                             }
                         }
                     }
@@ -159,7 +161,7 @@ _items = [
 
 # =============================================================================
 # Test: External name annotation for importing existing accounts
-# When externalName is set, the crossplane.io/external-name annotation is added
+# When spec.externalName is set, the crossplane.io/external-name annotation is added
 # =============================================================================
     metav1alpha1.CompositionTest{
         metadata.name: "test-external-name-annotation-for-import"
@@ -173,9 +175,9 @@ _items = [
                 kind: "Account"
                 metadata.name: "imported-account"
                 spec = {
-                    externalName: "999888777666"
                     email: "existing@example.com"
                     parentId: "ou-abc1-12345678"
+                    externalName: "999888777666"
                 }
             }
             assertResources: [
