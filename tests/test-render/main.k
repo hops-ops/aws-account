@@ -526,7 +526,7 @@ _items = [
                 {
                     apiVersion: "protection.crossplane.io/v1beta1"
                     kind: "Usage"
-                    metadata.name: "test-usage-usage-p-deny-root"
+                    metadata.name: "test-usage-delete-p-deny-root-before-account"
                     spec: {
                         replayDeletion: True
                         by: {

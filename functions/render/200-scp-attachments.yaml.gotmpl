@@ -19,13 +19,14 @@ spec:
     policyId: {{ $attachment.policyArn }}
     targetId: "{{ $attachment.targetId }}"
 
-# Usage: Account protected by PolicyAttachment (renders after attachment is ready)
-{{- if $attachment.ready }}
+# Usage: Delete PolicyAttachment before Account
+# Gate on both resources being ready to avoid stuck deletions
+{{- if and $state.observed.account.ready $attachment.ready }}
 ---
 apiVersion: protection.crossplane.io/v1beta1
 kind: Usage
 metadata:
-  name: {{ $state.account.name }}-usage-{{ $attachment.policyId }}
+  name: {{ $state.account.name }}-delete-{{ $attachment.policyId }}-before-account
   annotations:
     {{ setResourceNameAnnotation (printf "usage-%s" $attachment.policyId) }}
 spec:
