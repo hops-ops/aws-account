@@ -18,9 +18,9 @@ _base64_creds = base64.encode(_creds)
 _test_ou_id = file.read("env/TEST_OU_EXTERNAL_NAME").strip()
 
 # Persistent test account - shared with configuration-aws-organization, imported each run
-_test_account_name = "configuration-aws-organization"
+_test_account_name = file.read("env/TEST_ACCOUNT_NAME").strip()
 _test_account_id = file.read("env/TEST_ACCOUNT_EXTERNAL_NAME").strip()
-_test_account_email = "configuration-aws-organization@ops.com.ai"
+_test_account_email = file.read("env/TEST_ACCOUNT_EMAIL").strip()
 
 _items = [
     metav1alpha1.E2ETest{

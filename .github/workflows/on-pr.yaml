@@ -53,7 +53,9 @@ jobs:
       env-vars: |
         {
           "TEST_OU_EXTERNAL_NAME": "${{ vars.TEST_OU_EXTERNAL_NAME }}",
-          "TEST_ACCOUNT_EXTERNAL_NAME": "${{ vars.TEST_ACCOUNT_EXTERNAL_NAME }}"
+          "TEST_ACCOUNT_EXTERNAL_NAME": "${{ vars.TEST_ACCOUNT_EXTERNAL_NAME }}",
+          "TEST_ACCOUNT_NAME": "${{ vars.TEST_ACCOUNT_NAME }}",
+          "TEST_ACCOUNT_EMAIL": "${{ vars.TEST_ACCOUNT_EMAIL }}"
         }
 
   publish:
