@@ -46,6 +46,7 @@ jobs:
       aws-use-oidc: true
       aws-account-id: "034489662075"
       aws-region: us-east-2
+      write-env-files: true
       env-vars: |
         {
           "TEST_OU_EXTERNAL_NAME": "${{ vars.TEST_OU_EXTERNAL_NAME }}",
