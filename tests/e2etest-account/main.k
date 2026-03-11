@@ -15,11 +15,11 @@ _base64_creds = base64.encode(_creds)
 # =============================================================================
 
 # Test OU - use the existing OU in the hops organization
-_test_ou_id = "ou-hdvp-fbcb7sbw"
+_test_ou_id = file.read("env/TEST_OU_EXTERNAL_NAME").strip()
 
 # Persistent test account - shared with configuration-aws-organization, imported each run
 _test_account_name = "configuration-aws-organization"
-_test_account_id = "544051101726"
+_test_account_id = file.read("env/TEST_ACCOUNT_EXTERNAL_NAME").strip()
 _test_account_email = "configuration-aws-organization@ops.com.ai"
 
 _items = [
