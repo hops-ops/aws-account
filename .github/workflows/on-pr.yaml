@@ -43,8 +43,6 @@ jobs:
 
   e2e:
     uses: unbounded-tech/workflows-crossplane/.github/workflows/e2e.yaml@v2.20.0
-    uses: unbounded-tech/workflows-crossplane/.github/workflows/e2e.yaml@v2.20.0
-    uses: unbounded-tech/workflows-crossplane/.github/workflows/e2e.yaml@v2.20.0
     with:
       aws: true
       aws-use-oidc: true
